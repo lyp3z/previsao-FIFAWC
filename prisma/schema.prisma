@@ -1,0 +1,246 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+enum CompetitionStatus {
+  SCHEDULED
+  LIVE
+  FINISHED
+}
+
+enum StageType {
+  GROUP
+  KNOCKOUT
+  POSITIONAL
+}
+
+enum MatchStatus {
+  SCHEDULED
+  LIVE
+  FINISHED
+  POSTPONED
+  CANCELLED
+}
+
+enum QualificationStatus {
+  QUALIFIED
+  PLAYOFF
+  ELIMINATED
+  TBD
+}
+
+model Competition {
+  id             String            @id
+  slug           String            @unique
+  name           String
+  year           Int
+  official       Boolean           @default(true)
+  hostCountries  String[]
+  startDate      DateTime
+  endDate        DateTime
+  currentStageId String?
+  status         CompetitionStatus @default(SCHEDULED)
+  source         String
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  currentStage Stage?      @relation("CurrentStage", fields: [currentStageId], references: [id])
+  stages       Stage[]     @relation("CompetitionStages")
+  groups       Group[]
+  matches      Match[]
+  standings    Standing[]
+  knockout     KnockoutSlot[]
+
+  @@index([slug])
+  @@index([year])
+}
+
+model Stage {
+  id            String    @id
+  competitionId String
+  code          String
+  name          String
+  type          StageType
+  order         Int
+  isCurrent     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  competition             Competition   @relation("CompetitionStages", fields: [competitionId], references: [id], onDelete: Cascade)
+  currentForCompetitions  Competition[] @relation("CurrentStage")
+  matches                 Match[]
+  standings               Standing[]
+  knockoutSlots           KnockoutSlot[]
+
+  @@unique([competitionId, code])
+  @@index([competitionId, isCurrent])
+  @@index([competitionId, order])
+}
+
+model Group {
+  id            String   @id
+  competitionId String
+  code          String
+  name          String
+  order         Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  teams       Team[]
+  matches     Match[]
+  standings   Standing[]
+
+  @@unique([competitionId, code])
+  @@index([competitionId, order])
+}
+
+model Team {
+  id            String   @id
+  fifaId        String?
+  name          String
+  shortName     String
+  code          String   @unique
+  emoji         String
+  flagUrl       String?
+  confederation String?
+  groupId       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  group                 Group?       @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  homeMatches           Match[]      @relation("HomeTeam")
+  awayMatches           Match[]      @relation("AwayTeam")
+  winnerMatches         Match[]      @relation("WinnerTeam")
+  standings             Standing[]
+  homeKnockoutSlots     KnockoutSlot[] @relation("KnockoutHomeTeam")
+  awayKnockoutSlots     KnockoutSlot[] @relation("KnockoutAwayTeam")
+  winnerKnockoutSlots   KnockoutSlot[] @relation("KnockoutWinnerTeam")
+
+  @@index([groupId])
+}
+
+model Match {
+  id               String      @id
+  externalId       String?
+  competitionId    String
+  stageId          String
+  groupId          String?
+  roundLabel       String?
+  matchNumber      Int?
+  venue            String
+  city             String
+  country          String
+  date             DateTime
+  time             String
+  datetimeUtc      DateTime
+  timezone         String
+  status           MatchStatus @default(SCHEDULED)
+  isLive           Boolean     @default(false)
+  minute           Int?
+  homeTeamId       String
+  awayTeamId       String
+  homeScore        Int         @default(0)
+  awayScore        Int         @default(0)
+  homePenaltyScore Int?
+  awayPenaltyScore Int?
+  winnerTeamId     String?
+  source           String
+  sourceLastSync   DateTime?
+  isOfficial       Boolean     @default(true)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  stage       Stage       @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  group       Group?      @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  homeTeam    Team        @relation("HomeTeam", fields: [homeTeamId], references: [id], onDelete: Restrict)
+  awayTeam    Team        @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Restrict)
+  winnerTeam  Team?       @relation("WinnerTeam", fields: [winnerTeamId], references: [id], onDelete: SetNull)
+
+  @@index([competitionId, datetimeUtc])
+  @@index([competitionId, stageId])
+  @@index([competitionId, groupId])
+  @@index([status, isLive])
+  @@index([homeTeamId])
+  @@index([awayTeamId])
+}
+
+model Standing {
+  id                  String              @id
+  competitionId       String
+  stageId             String
+  groupId             String
+  teamId              String
+  played              Int                 @default(0)
+  wins                Int                 @default(0)
+  draws               Int                 @default(0)
+  losses              Int                 @default(0)
+  goalsFor            Int                 @default(0)
+  goalsAgainst        Int                 @default(0)
+  goalDifference      Int                 @default(0)
+  points              Int                 @default(0)
+  position            Int                 @default(0)
+  qualificationStatus QualificationStatus @default(TBD)
+  updatedAt           DateTime            @updatedAt
+
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  stage       Stage       @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  group       Group       @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  team        Team        @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([competitionId, stageId, groupId, teamId])
+  @@index([competitionId, groupId, position])
+  @@index([teamId])
+}
+
+model KnockoutSlot {
+  id           String   @id
+  competitionId String
+  stageId      String
+  slotCode     String
+  label        String
+  sourceRule   String
+  homeTeamId   String?
+  awayTeamId   String?
+  winnerTeamId String?
+  nextSlotCode String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  stage       Stage       @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  homeTeam    Team?       @relation("KnockoutHomeTeam", fields: [homeTeamId], references: [id], onDelete: SetNull)
+  awayTeam    Team?       @relation("KnockoutAwayTeam", fields: [awayTeamId], references: [id], onDelete: SetNull)
+  winnerTeam  Team?       @relation("KnockoutWinnerTeam", fields: [winnerTeamId], references: [id], onDelete: SetNull)
+
+  @@unique([competitionId, slotCode])
+  @@index([competitionId, stageId])
+}
+
+model SyncLog {
+  id             String   @id @default(cuid())
+  provider       String
+  entityType     String
+  startedAt      DateTime
+  finishedAt     DateTime?
+  success        Boolean
+  message        String
+  payloadSummary Json?
+
+  @@index([entityType, startedAt])
+}
+
+model SimulationSession {
+  id         String   @id @default(cuid())
+  sessionKey String   @unique
+  payload    Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
