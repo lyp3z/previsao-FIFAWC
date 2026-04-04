@@ -131,8 +131,7 @@ export function computeGroupStandings(teams: Team[], matches: MatchLike[]): Stan
   for (const match of matches) {
     const isPlayed =
       match.status === MatchStatus.FINISHED ||
-      match.status === MatchStatus.LIVE ||
-      (typeof match.homeScore === 'number' && typeof match.awayScore === 'number');
+      match.status === MatchStatus.LIVE;
 
     if (!isPlayed) continue;
 
