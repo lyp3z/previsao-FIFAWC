@@ -271,6 +271,58 @@ export default function SimuladorPage() {
                   ))}
                 </div>
               </div>
+
+              {/* Round of 32 simulated bracket */}
+              {result.knockout.round32.length > 0 && (() => {
+                const teamMap: Record<string, { code: string; emoji: string }> = {};
+                for (const g of result.standings.groups) {
+                  for (const row of g.rows) teamMap[row.teamId] = row.team;
+                }
+                for (const row of result.standings.bestThird ?? []) {
+                  teamMap[row.row.teamId] = row.row.team;
+                }
+                return (
+                  <div>
+                    <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#f8fafc', marginBottom: '1rem' }}>
+                      Round of 32 simulado
+                    </h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '0.6rem' }}>
+                      {result.knockout.round32.map((slot) => {
+                        const home = slot.homeTeamId ? teamMap[slot.homeTeamId] : null;
+                        const away = slot.awayTeamId ? teamMap[slot.awayTeamId] : null;
+                        return (
+                          <div key={slot.slotCode} style={{
+                            background: '#0d1117', border: '1px solid #1e293b', borderRadius: 12, overflow: 'hidden',
+                          }}>
+                            <div style={{ padding: '0.3rem 0.6rem', background: '#0a0f1a', borderBottom: '1px solid #1e293b', fontSize: '0.6rem', fontWeight: 700, color: '#374151' }}>
+                              {slot.slotCode}
+                            </div>
+                            {[home, away].map((team, i) => (
+                              <div key={i} style={{
+                                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                                padding: '0.45rem 0.6rem',
+                                borderBottom: i === 0 ? '1px solid #0f172a' : 'none',
+                              }}>
+                                {team ? (
+                                  <>
+                                    <span style={{ fontSize: '0.9rem' }}>{team.emoji}</span>
+                                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#e2e8f0' }}>{team.code}</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span style={{ fontSize: '0.85rem' }}>🏳</span>
+                                    <span style={{ fontSize: '0.7rem', color: '#374151', fontWeight: 600 }}>TBD</span>
+                                  </>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
         </div>
