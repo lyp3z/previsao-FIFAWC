@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { flagUrl } from '@/lib/flag';
 
 type Override = { matchId: string; homeScore: number; awayScore: number };
 type Match = {
@@ -93,7 +94,14 @@ function BracketCard({
           >
             {team ? (
               <>
-                <span style={{ fontSize: compact ? '0.85rem' : '0.95rem', lineHeight: 1 }}>{team.emoji}</span>
+                {(() => {
+                  const url = flagUrl(team.code, 40);
+                  return url ? (
+                    <img src={url} alt={team.code} style={{ width: compact ? 18 : 22, height: compact ? 12 : 15, objectFit: 'cover', borderRadius: 2, flexShrink: 0, border: '1px solid rgba(255,255,255,0.06)' }} />
+                  ) : (
+                    <span style={{ fontSize: compact ? '0.85rem' : '0.95rem', lineHeight: 1 }}>{team.emoji}</span>
+                  );
+                })()}
                 <span style={{ fontSize: compact ? '0.68rem' : '0.75rem', fontWeight: 800, color: isWinner ? '#e2e8f0' : '#94a3b8', flex: 1, letterSpacing: '0.03em' }}>
                   {team.code}
                 </span>
@@ -393,8 +401,9 @@ export default function SimuladorPage() {
                             )}
                           </div>
 
-                          <span style={{ flex: 1, textAlign: 'right', fontSize: '0.85rem', fontWeight: 700, color: '#e2e8f0' }}>
-                            {match.homeTeam?.emoji ?? '🏳️'} {match.homeTeam?.code ?? '?'}
+                          <span style={{ flex: 1, textAlign: 'right', fontSize: '0.85rem', fontWeight: 700, color: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.4rem' }}>
+                            {match.homeTeam?.code ?? '?'}
+                            {match.homeTeam && (() => { const url = flagUrl(match.homeTeam.code, 40); return url ? <img src={url} alt={match.homeTeam.code} style={{ width: 22, height: 15, objectFit: 'cover', borderRadius: 2, border: '1px solid rgba(255,255,255,0.06)' }} /> : <span>{match.homeTeam.emoji}</span>; })()}
                           </span>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.1rem' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
@@ -408,8 +417,9 @@ export default function SimuladorPage() {
                               <span style={{ fontSize: '0.5rem', color: '#ef4444', fontWeight: 600 }}>placar ao vivo</span>
                             )}
                           </div>
-                          <span style={{ flex: 1, fontSize: '0.85rem', fontWeight: 700, color: '#e2e8f0' }}>
-                            {match.awayTeam?.code ?? '?'} {match.awayTeam?.emoji ?? '🏳️'}
+                          <span style={{ flex: 1, fontSize: '0.85rem', fontWeight: 700, color: '#e2e8f0', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                            {match.awayTeam && (() => { const url = flagUrl(match.awayTeam.code, 40); return url ? <img src={url} alt={match.awayTeam.code} style={{ width: 22, height: 15, objectFit: 'cover', borderRadius: 2, border: '1px solid rgba(255,255,255,0.06)' }} /> : <span>{match.awayTeam.emoji}</span>; })()}
+                            {match.awayTeam?.code ?? '?'}
                           </span>
                         </div>
                       );

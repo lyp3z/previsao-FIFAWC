@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { computeGroupStandings } from '@/modules/standings/service';
+import { flagUrl } from '@/lib/flag';
 
 async function loadGroups() {
   return prisma.group.findMany({
@@ -91,8 +92,15 @@ export default async function GruposPage() {
                           </div>
                         </td>
                         <td style={{ padding: '0.6rem 0', minWidth: 0 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                            <span style={{ fontSize: '1rem' }}>{row.team.emoji}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            {(() => {
+                              const url = flagUrl(row.team.code, 40);
+                              return url ? (
+                                <img src={url} alt={row.team.code} style={{ width: 26, height: 18, objectFit: 'cover', borderRadius: 3, flexShrink: 0, border: '1px solid rgba(255,255,255,0.06)' }} />
+                              ) : (
+                                <span style={{ fontSize: '1rem' }}>{row.team.emoji}</span>
+                              );
+                            })()}
                             <div>
                               <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#e2e8f0' }}>
                                 {row.team.shortName}

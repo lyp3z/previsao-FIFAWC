@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { flagUrl } from '@/lib/flag';
 
 function statusLabel(status: string, isLive: boolean, minute: number | null) {
   if (isLive) return { text: `AO VIVO${minute ? ` • ${minute}'` : ''}`, color: '#ef4444', live: true };
@@ -127,7 +128,14 @@ export default async function CalendarioPage() {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
                     {/* Home */}
                     <div style={{ textAlign: 'center', flex: 1 }}>
-                      <div style={{ fontSize: '1.5rem', marginBottom: '0.15rem' }}>{match.homeTeam.emoji}</div>
+                      {(() => {
+                        const url = flagUrl(match.homeTeam.code, 80);
+                        return url ? (
+                          <img src={url} alt={match.homeTeam.code} style={{ width: 44, height: 30, objectFit: 'cover', borderRadius: 4, marginBottom: '0.3rem', border: '1px solid rgba(255,255,255,0.08)' }} />
+                        ) : (
+                          <div style={{ fontSize: '1.5rem', marginBottom: '0.15rem' }}>{match.homeTeam.emoji}</div>
+                        );
+                      })()}
                       <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.05em' }}>
                         {match.homeTeam.code}
                       </div>
@@ -148,7 +156,14 @@ export default async function CalendarioPage() {
 
                     {/* Away */}
                     <div style={{ textAlign: 'center', flex: 1 }}>
-                      <div style={{ fontSize: '1.5rem', marginBottom: '0.15rem' }}>{match.awayTeam.emoji}</div>
+                      {(() => {
+                        const url = flagUrl(match.awayTeam.code, 80);
+                        return url ? (
+                          <img src={url} alt={match.awayTeam.code} style={{ width: 44, height: 30, objectFit: 'cover', borderRadius: 4, marginBottom: '0.3rem', border: '1px solid rgba(255,255,255,0.08)' }} />
+                        ) : (
+                          <div style={{ fontSize: '1.5rem', marginBottom: '0.15rem' }}>{match.awayTeam.emoji}</div>
+                        );
+                      })()}
                       <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.05em' }}>
                         {match.awayTeam.code}
                       </div>
