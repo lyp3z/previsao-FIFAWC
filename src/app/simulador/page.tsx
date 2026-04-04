@@ -268,10 +268,13 @@ export default function SimuladorPage() {
   const pick = (slotCode: string, teamId: string) => setKw((p) => ({ ...p, [slotCode]: teamId }));
 
   // Derive bracket rounds
+  const empty = (n: number, prefix: string): KnockoutSlot[] =>
+    Array.from({ length: n }, (_, i) => ({ slotCode: `${prefix}_${i + 1}` }));
+
   const r32 = groupResult?.knockout.round32 ?? [];
-  const r16 = r32.length && r32.every(s => kw[s.slotCode]) ? pairInto(r32, kw, 'R16') : Array.from({ length: 8 }, (_, i) => ({ slotCode: `R16_${i+1}` }));
-  const qf  = r16.every(s => kw[s.slotCode]) && r16[0]?.homeTeamId !== undefined ? pairInto(r16, kw, 'QF') : Array.from({ length: 4 }, (_, i) => ({ slotCode: `QF_${i+1}` }));
-  const sf  = qf.every(s => kw[s.slotCode]) && qf[0]?.homeTeamId !== undefined ? pairInto(qf, kw, 'SF') : Array.from({ length: 2 }, (_, i) => ({ slotCode: `SF_${i+1}` }));
+  const r16 = r32.length && r32.every(s => kw[s.slotCode]) ? pairInto(r32, kw, 'R16') : empty(8, 'R16');
+  const qf  = r16.every(s => kw[s.slotCode]) && r16[0]?.homeTeamId !== undefined ? pairInto(r16, kw, 'QF') : empty(4, 'QF');
+  const sf  = qf.every(s => kw[s.slotCode]) && qf[0]?.homeTeamId !== undefined ? pairInto(qf, kw, 'SF') : empty(2, 'SF');
   const sfDone = sf.length > 0 && sf.every(s => kw[s.slotCode]) && sf[0].homeTeamId !== undefined;
 
   const finalSlot: KnockoutSlot = { slotCode: 'FINAL', homeTeamId: kw.SF_1, awayTeamId: kw.SF_2 };
