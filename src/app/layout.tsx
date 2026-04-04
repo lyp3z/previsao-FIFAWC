@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Nav } from '@/ui/Nav';
+import { SplashScreen } from '@/ui/SplashScreen';
 
 export const metadata: Metadata = {
   title: 'GoalForge — Copa do Mundo 2026',
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body>
+        <SplashScreen />
         <Nav />
         <main className="page-main">
           {children}
