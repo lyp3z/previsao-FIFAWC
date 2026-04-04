@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import {
   CompetitionStatus,
   MatchStatus,
@@ -132,12 +133,16 @@ async function main() {
       endDate: new Date('2026-07-19T00:00:00.000Z'),
       status: CompetitionStatus.SCHEDULED,
       source: 'seed',
-      currentStageId: 'stage_group',
     },
   });
 
   await prisma.stage.createMany({
     data: stages.map((stage) => ({ ...stage, competitionId })),
+  });
+
+  await prisma.competition.update({
+    where: { id: competitionId },
+    data: { currentStageId: 'stage_group' },
   });
 
   await prisma.group.createMany({ data: groups });
