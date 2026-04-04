@@ -9,6 +9,7 @@ type Match = {
   awayTeam: { code: string; emoji: string; shortName: string } | null;
   group: { code: string } | null;
   homeScore: number; awayScore: number; status: string;
+  isLive: boolean; minute: number | null;
 };
 type Group = { id: string; code: string; matches: Match[] };
 type StandingRow = {
@@ -365,20 +366,47 @@ export default function SimuladorPage() {
                       const ov = overrides[match.id];
                       const home = ov?.homeScore ?? match.homeScore;
                       const away = ov?.awayScore ?? match.awayScore;
+                      const isFinished = match.status === 'FINISHED';
                       return (
                         <div key={match.id} style={{
                           display: 'flex', alignItems: 'center', gap: '0.65rem',
                           padding: '0.5rem 0.65rem', borderRadius: 9, marginBottom: '0.25rem',
-                          background: ov ? 'rgba(34,197,94,0.04)' : 'transparent',
-                          border: ov ? '1px solid rgba(34,197,94,0.12)' : '1px solid transparent',
+                          background: match.isLive
+                            ? 'rgba(239,68,68,0.05)'
+                            : ov ? 'rgba(34,197,94,0.04)' : 'transparent',
+                          border: match.isLive
+                            ? '1px solid rgba(239,68,68,0.2)'
+                            : ov ? '1px solid rgba(34,197,94,0.12)' : '1px solid transparent',
                         }}>
+                          {/* Live / Finished badge */}
+                          <div style={{ width: 52, flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.15rem' }}>
+                            {match.isLive && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#ef4444', display: 'inline-block', animation: 'pulse 1.5s infinite' }} />
+                                <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#ef4444', letterSpacing: '0.05em' }}>
+                                  {match.minute ? `${match.minute}'` : 'AO VIVO'}
+                                </span>
+                              </div>
+                            )}
+                            {isFinished && (
+                              <span style={{ fontSize: '0.52rem', fontWeight: 700, color: '#4b5563', letterSpacing: '0.05em' }}>FINAL</span>
+                            )}
+                          </div>
+
                           <span style={{ flex: 1, textAlign: 'right', fontSize: '0.85rem', fontWeight: 700, color: '#e2e8f0' }}>
                             {match.homeTeam?.emoji ?? '🏳️'} {match.homeTeam?.code ?? '?'}
                           </span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                            <input type="number" min={0} max={20} value={home} onChange={(e) => setScore(match.id, 'homeScore', e.target.value)} style={{ width: 40, height: 32, textAlign: 'center', fontSize: '1rem', fontWeight: 800, background: '#0a0f1a', border: '1px solid #1e293b', borderRadius: 7, color: '#f8fafc', outline: 'none' }} />
-                            <span style={{ color: '#374151', fontWeight: 800, fontSize: '0.85rem' }}>×</span>
-                            <input type="number" min={0} max={20} value={away} onChange={(e) => setScore(match.id, 'awayScore', e.target.value)} style={{ width: 40, height: 32, textAlign: 'center', fontSize: '1rem', fontWeight: 800, background: '#0a0f1a', border: '1px solid #1e293b', borderRadius: 7, color: '#f8fafc', outline: 'none' }} />
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.1rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                              <input type="number" min={0} max={20} value={home} onChange={(e) => setScore(match.id, 'homeScore', e.target.value)}
+                                style={{ width: 40, height: 32, textAlign: 'center', fontSize: '1rem', fontWeight: 800, background: '#0a0f1a', border: `1px solid ${match.isLive ? 'rgba(239,68,68,0.3)' : '#1e293b'}`, borderRadius: 7, color: '#f8fafc', outline: 'none' }} />
+                              <span style={{ color: '#374151', fontWeight: 800, fontSize: '0.85rem' }}>×</span>
+                              <input type="number" min={0} max={20} value={away} onChange={(e) => setScore(match.id, 'awayScore', e.target.value)}
+                                style={{ width: 40, height: 32, textAlign: 'center', fontSize: '1rem', fontWeight: 800, background: '#0a0f1a', border: `1px solid ${match.isLive ? 'rgba(239,68,68,0.3)' : '#1e293b'}`, borderRadius: 7, color: '#f8fafc', outline: 'none' }} />
+                            </div>
+                            {match.isLive && (
+                              <span style={{ fontSize: '0.5rem', color: '#ef4444', fontWeight: 600 }}>placar ao vivo</span>
+                            )}
                           </div>
                           <span style={{ flex: 1, fontSize: '0.85rem', fontWeight: 700, color: '#e2e8f0' }}>
                             {match.awayTeam?.code ?? '?'} {match.awayTeam?.emoji ?? '🏳️'}
