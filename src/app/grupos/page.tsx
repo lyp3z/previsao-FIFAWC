@@ -65,8 +65,8 @@ export default async function GruposPage() {
                 <thead>
                   <tr style={{ fontSize: '0.62rem', color: '#4b5563', fontWeight: 700, letterSpacing: '0.05em' }}>
                     <th style={{ padding: '0.5rem 0.85rem', textAlign: 'left' }}>#</th>
-                    <th style={{ padding: '0.5rem 0', textAlign: 'left' }}>Seleção</th>
-                    {['J', 'V', 'E', 'D', 'GP', 'GC', 'SG', 'PTS'].map((h) => (
+                    <th style={{ padding: '0.5rem 0', textAlign: 'left' }}>Equipe</th>
+                    {['PTS', 'PJ', 'VIT', 'E', 'DER', 'GM', 'GC', 'SG'].map((h) => (
                       <th key={h} style={{ padding: '0.5rem 0.5rem', textAlign: 'center' }}>{h}</th>
                     ))}
                   </tr>
@@ -95,24 +95,24 @@ export default async function GruposPage() {
                             <span style={{ fontSize: '1rem' }}>{row.team.emoji}</span>
                             <div>
                               <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#e2e8f0' }}>
-                                {row.team.code}
+                                {row.team.shortName}
                               </div>
                               <div style={{ fontSize: '0.62rem', color: '#4b5563' }}>
-                                {row.team.shortName}
+                                {row.team.code}
                               </div>
                             </div>
                           </div>
+                        </td>
+                        <td style={{ padding: '0.6rem 0.5rem', textAlign: 'center' }}>
+                          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f8fafc' }}>
+                            {row.points}
+                          </span>
                         </td>
                         {[row.played, row.wins, row.draws, row.losses, row.goalsFor, row.goalsAgainst, row.goalDifference].map((v, i) => (
                           <td key={i} style={{ padding: '0.6rem 0.5rem', textAlign: 'center', fontSize: '0.75rem', color: '#94a3b8' }}>
                             {v}
                           </td>
                         ))}
-                        <td style={{ padding: '0.6rem 0.5rem', textAlign: 'center' }}>
-                          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f8fafc' }}>
-                            {row.points}
-                          </span>
-                        </td>
                       </tr>
                     );
                   })}
