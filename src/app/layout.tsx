@@ -1,15 +1,15 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Nav } from '@/ui/Nav';
 
 export const metadata: Metadata = {
-  title: 'GoalForge — World Cup 2026 API',
-  description:
-    'Real-time World Cup 2026 tracker and scenario simulator API. Live matches, standings, bracket and full simulation engine.',
+  title: 'GoalForge — Copa do Mundo 2026',
+  description: 'Acompanhe a Copa do Mundo 2026 em tempo real. Calendário, grupos, mata-mata e simulador de cenários.',
   authors: [{ name: 'lypecs' }],
-  keywords: ['world cup 2026', 'fifa', 'soccer', 'api', 'simulator', 'bracket', 'standings'],
+  keywords: ['copa do mundo 2026', 'fifa', 'futebol', 'simulador', 'bracket', 'classificação'],
   openGraph: {
-    title: 'GoalForge — World Cup 2026 API',
-    description: 'Track live matches, simulate scenarios and explore the knockout bracket for FIFA World Cup 2026.',
+    title: 'GoalForge — Copa do Mundo 2026',
+    description: 'Calendário de jogos, classificação por grupos, bracket do mata-mata e simulador de cenários.',
     type: 'website',
   },
 };
@@ -20,8 +20,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="pt-BR">
+      <body>
+        <Nav />
+        <main style={{ maxWidth: 1200, margin: '0 auto', padding: '2rem 1.5rem' }}>
+          {children}
+        </main>
+      </body>
     </html>
   );
 }
