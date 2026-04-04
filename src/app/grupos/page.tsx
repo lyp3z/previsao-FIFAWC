@@ -36,7 +36,7 @@ export default async function GruposPage() {
         48 seleções · 12 grupos · 2 classificados + 8 melhores terceiros
       </p>
 
-      <div style={{
+      <div className="group-grid" style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
         gap: '1.25rem',
@@ -67,9 +67,13 @@ export default async function GruposPage() {
                   <tr style={{ fontSize: '0.62rem', color: '#4b5563', fontWeight: 700, letterSpacing: '0.05em' }}>
                     <th style={{ padding: '0.5rem 0.85rem', textAlign: 'left' }}>#</th>
                     <th style={{ padding: '0.5rem 0', textAlign: 'left' }}>Equipe</th>
-                    {['PTS', 'PJ', 'VIT', 'E', 'DER', 'GM', 'GC', 'SG'].map((h) => (
+                    {['PTS', 'PJ'].map((h) => (
                       <th key={h} style={{ padding: '0.5rem 0.5rem', textAlign: 'center' }}>{h}</th>
                     ))}
+                    {['VIT', 'E', 'DER', 'GM', 'GC'].map((h) => (
+                      <th key={h} className="col-hide-mobile" style={{ padding: '0.5rem 0.5rem', textAlign: 'center' }}>{h}</th>
+                    ))}
+                    <th style={{ padding: '0.5rem 0.5rem', textAlign: 'center' }}>SG</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -116,11 +120,13 @@ export default async function GruposPage() {
                             {row.points}
                           </span>
                         </td>
-                        {[row.played, row.wins, row.draws, row.losses, row.goalsFor, row.goalsAgainst, row.goalDifference].map((v, i) => (
-                          <td key={i} style={{ padding: '0.6rem 0.5rem', textAlign: 'center', fontSize: '0.75rem', color: '#94a3b8' }}>
+                        <td style={{ padding: '0.6rem 0.5rem', textAlign: 'center', fontSize: '0.75rem', color: '#94a3b8' }}>{row.played}</td>
+                        {[row.wins, row.draws, row.losses, row.goalsFor, row.goalsAgainst].map((v, i) => (
+                          <td key={i} className="col-hide-mobile" style={{ padding: '0.6rem 0.5rem', textAlign: 'center', fontSize: '0.75rem', color: '#94a3b8' }}>
                             {v}
                           </td>
                         ))}
+                        <td style={{ padding: '0.6rem 0.5rem', textAlign: 'center', fontSize: '0.75rem', color: '#94a3b8' }}>{row.goalDifference}</td>
                       </tr>
                     );
                   })}

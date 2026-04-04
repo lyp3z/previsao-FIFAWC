@@ -23,7 +23,7 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body>
         <Nav />
-        <main style={{ maxWidth: 1200, margin: '0 auto', padding: '2rem 1.5rem' }}>
+        <main className="page-main">
           {children}
         </main>
       </body>

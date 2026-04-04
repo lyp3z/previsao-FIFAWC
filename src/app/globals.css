@@ -9,3 +9,62 @@ body {
 }
 
 a { color: inherit; text-decoration: none; }
+
+/* Remove number input arrows */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+input[type="number"] { -moz-appearance: textfield; }
+
+/* Layout */
+.page-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* Desktop nav / Mobile bottom nav */
+.nav-desktop { display: flex; }
+.nav-mobile  { display: none; }
+
+/* Grupos table: hide less critical columns on mobile */
+.col-hide-mobile { display: table-cell; }
+
+/* Bracket scroll */
+.bracket-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .page-main {
+    padding: 1rem 0.75rem 5.5rem;
+  }
+
+  .nav-desktop { display: none !important; }
+  .nav-mobile  { display: flex !important; }
+
+  .col-hide-mobile { display: none; }
+
+  /* Stats bar wrap */
+  .stats-bar { flex-wrap: wrap; }
+  .stats-bar > * { flex: 1 1 calc(50% - 0.5rem) !important; }
+
+  /* Match cards: full width */
+  .match-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Group cards: full width */
+  .group-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Simulator group selector scroll */
+  .group-selector {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap !important;
+    padding-bottom: 0.25rem;
+  }
+}

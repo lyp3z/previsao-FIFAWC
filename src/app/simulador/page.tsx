@@ -345,7 +345,7 @@ export default function SimuladorPage() {
           ) : (
             <>
               {/* Group selector */}
-              <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
+              <div className="group-selector" style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
                 {'ABCDEFGHIJKL'.split('').map((c) => {
                   const active = selectedGroup === c;
                   return (
@@ -495,7 +495,7 @@ export default function SimuladorPage() {
           </div>
 
           {/* Horizontal bracket */}
-          <div style={{
+          <div className="bracket-scroll" style={{
             display: 'flex', gap: '1.25rem', overflowX: 'auto', overflowY: 'auto',
             maxHeight: 'calc(100vh - 220px)',
             paddingBottom: '1rem', paddingTop: '0.5rem',

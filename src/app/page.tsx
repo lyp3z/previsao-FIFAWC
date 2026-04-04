@@ -44,7 +44,7 @@ export default async function CalendarioPage() {
   return (
     <div>
       {/* Stats bar */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+      <div className="stats-bar" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
         {[
           {
             icon: '⚡', label: 'Ao Vivo', value: `${liveCount} Partida${liveCount !== 1 ? 's' : ''}`,
@@ -90,7 +90,7 @@ export default async function CalendarioPage() {
             {formatDate(dayMatches[0].datetimeUtc)}
           </div>
 
-          <div style={{
+          <div className="match-grid" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
             gap: '0.75rem',
