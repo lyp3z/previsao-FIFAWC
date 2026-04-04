@@ -3,23 +3,7 @@
   "crons": [
     {
       "path": "/api/sync/matches",
-      "schedule": "0 * * * *"
-    },
-    {
-      "path": "/api/sync/standings",
-      "schedule": "0 * * * *"
-    },
-    {
-      "path": "/api/sync/knockout",
-      "schedule": "0 * * * *"
-    },
-    {
-      "path": "/api/sync/current-stage",
-      "schedule": "0 * * * *"
-    },
-    {
-      "path": "/api/sync/competitions",
-      "schedule": "0 */6 * * *"
+      "schedule": "0 6 * * *"
     }
   ]
 }
