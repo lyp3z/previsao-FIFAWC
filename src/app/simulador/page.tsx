@@ -27,18 +27,22 @@ const qualColor: Record<string, string> = {
 export default function SimuladorPage() {
   const [groups, setGroups] = useState<Group[] | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [overrides, setOverrides] = useState<Record<string, Override>>({});
   const [result, setResult] = useState<SimResult | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<string>('A');
   const [simLoading, setSimLoading] = useState(false);
+  const [simError, setSimError] = useState<string | null>(null);
 
   async function loadGroups() {
     setLoading(true);
+    setLoadError(null);
     try {
       const [groupsRes, matchesRes] = await Promise.all([
         fetch('/api/groups'),
         fetch('/api/matches?stage=GROUP'),
       ]);
+      if (!groupsRes.ok || !matchesRes.ok) throw new Error('Falha ao buscar dados da API');
       const groupsJson = await groupsRes.json();
       const matchesJson = await matchesRes.json();
 
@@ -52,6 +56,7 @@ export default function SimuladorPage() {
       setGroups(groupList);
     } catch (err) {
       console.error('Erro ao carregar partidas:', err);
+      setLoadError(err instanceof Error ? err.message : 'Erro ao carregar partidas');
     }
     setLoading(false);
   }
@@ -67,13 +72,20 @@ export default function SimuladorPage() {
   async function simulate() {
     setSimLoading(true);
     setResult(null);
-    const res = await fetch('/api/simulator/full', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ overrides: Object.values(overrides) }),
-    });
-    const json = await res.json();
-    setResult(json.data);
+    setSimError(null);
+    try {
+      const res = await fetch('/api/simulator/full', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ overrides: Object.values(overrides) }),
+      });
+      if (!res.ok) throw new Error(`Erro ${res.status} ao simular`);
+      const json = await res.json();
+      setResult(json.data);
+    } catch (err) {
+      console.error('Erro ao simular:', err);
+      setSimError(err instanceof Error ? err.message : 'Erro ao simular cenário');
+    }
     setSimLoading(false);
   }
 
@@ -98,16 +110,24 @@ export default function SimuladorPage() {
       </p>
 
       {!groups ? (
-        <button
-          onClick={loadGroups}
-          disabled={loading}
-          style={{
-            background: '#22c55e', color: '#000', fontWeight: 800, fontSize: '0.9rem',
-            border: 'none', borderRadius: 10, padding: '0.75rem 2rem', cursor: 'pointer',
-          }}
-        >
-          {loading ? 'Carregando partidas...' : '⚡ Carregar partidas'}
-        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'flex-start' }}>
+          <button
+            onClick={loadGroups}
+            disabled={loading}
+            style={{
+              background: '#22c55e', color: '#000', fontWeight: 800, fontSize: '0.9rem',
+              border: 'none', borderRadius: 10, padding: '0.75rem 2rem', cursor: 'pointer',
+              opacity: loading ? 0.7 : 1,
+            }}
+          >
+            {loading ? 'Carregando partidas...' : '⚡ Carregar partidas'}
+          </button>
+          {loadError && (
+            <div style={{ fontSize: '0.8rem', color: '#ef4444', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, padding: '0.5rem 0.75rem' }}>
+              ⚠️ {loadError}
+            </div>
+          )}
+        </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {/* Group selector */}
@@ -156,7 +176,7 @@ export default function SimuladorPage() {
                       marginBottom: '0.35rem',
                     }}>
                       <span style={{ flex: 1, textAlign: 'right', fontSize: '0.9rem', fontWeight: 700, color: '#e2e8f0' }}>
-                        {match.homeTeam.emoji} {match.homeTeam.code}
+                        {match.homeTeam?.emoji ?? '🏳️'} {match.homeTeam?.code ?? '?'}
                       </span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                         <input type="number" min={0} max={20} value={home}
@@ -178,7 +198,7 @@ export default function SimuladorPage() {
                         />
                       </div>
                       <span style={{ flex: 1, fontSize: '0.9rem', fontWeight: 700, color: '#e2e8f0' }}>
-                        {match.awayTeam.code} {match.awayTeam.emoji}
+                        {match.awayTeam?.code ?? '?'} {match.awayTeam?.emoji ?? '🏳️'}
                       </span>
                     </div>
                   );
@@ -200,6 +220,13 @@ export default function SimuladorPage() {
               {Object.keys(overrides).length} placar{Object.keys(overrides).length !== 1 ? 'es' : ''} alterado{Object.keys(overrides).length !== 1 ? 's' : ''}
             </span>
           </div>
+
+          {/* Sim error */}
+          {simError && (
+            <div style={{ fontSize: '0.8rem', color: '#ef4444', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, padding: '0.5rem 0.75rem' }}>
+              ⚠️ {simError}
+            </div>
+          )}
 
           {/* Results */}
           {result && (
