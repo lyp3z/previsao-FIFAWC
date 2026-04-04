@@ -178,24 +178,127 @@ async function main() {
     teamIds: teams.filter((team) => team.groupCode === group.code).map((team) => team.id),
   }));
 
-  const baseDate = new Date('2026-06-11T16:00:00.000Z');
+  // Slot: [iso, venue, city, country] — 6 slots per group (fixtureIndex 0..5)
+  // MD1 = fixtures 0,1 | MD2 = fixtures 2,3 | MD3 = fixtures 4,5 (simultaneous within group)
+  type Slot = { iso: string; venue: string; city: string; country: string };
+  const groupSlots: Record<string, Slot[]> = {
+    A: [
+      { iso: '2026-06-11T22:00:00Z', venue: 'Estadio Azteca',          city: 'Cidade do México', country: 'México' },
+      { iso: '2026-06-12T01:00:00Z', venue: 'AT&T Stadium',             city: 'Dallas',           country: 'Estados Unidos' },
+      { iso: '2026-06-18T23:00:00Z', venue: 'Estadio BBVA',             city: 'Monterrey',        country: 'México' },
+      { iso: '2026-06-19T02:00:00Z', venue: 'Rose Bowl',                city: 'Los Angeles',      country: 'Estados Unidos' },
+      { iso: '2026-06-25T22:00:00Z', venue: 'Estadio Akron',            city: 'Guadalajara',      country: 'México' },
+      { iso: '2026-06-25T22:00:00Z', venue: 'AT&T Stadium',             city: 'Dallas',           country: 'Estados Unidos' },
+    ],
+    B: [
+      { iso: '2026-06-12T19:00:00Z', venue: 'BMO Field',                city: 'Toronto',          country: 'Canadá' },
+      { iso: '2026-06-12T22:00:00Z', venue: 'MetLife Stadium',          city: 'Nova York/NJ',     country: 'Estados Unidos' },
+      { iso: '2026-06-19T19:00:00Z', venue: 'BC Place',                 city: 'Vancouver',        country: 'Canadá' },
+      { iso: '2026-06-19T22:00:00Z', venue: 'Gillette Stadium',         city: 'Boston',           country: 'Estados Unidos' },
+      { iso: '2026-06-25T19:00:00Z', venue: 'BMO Field',                city: 'Toronto',          country: 'Canadá' },
+      { iso: '2026-06-25T19:00:00Z', venue: 'BC Place',                 city: 'Vancouver',        country: 'Canadá' },
+    ],
+    C: [
+      { iso: '2026-06-12T16:00:00Z', venue: 'Hard Rock Stadium',        city: 'Miami',            country: 'Estados Unidos' },
+      { iso: '2026-06-12T19:00:00Z', venue: 'MetLife Stadium',          city: 'Nova York/NJ',     country: 'Estados Unidos' },
+      { iso: '2026-06-19T16:00:00Z', venue: 'Lincoln Financial Field',  city: 'Filadélfia',       country: 'Estados Unidos' },
+      { iso: '2026-06-19T19:00:00Z', venue: 'Mercedes-Benz Stadium',    city: 'Atlanta',          country: 'Estados Unidos' },
+      { iso: '2026-06-26T22:00:00Z', venue: 'MetLife Stadium',          city: 'Nova York/NJ',     country: 'Estados Unidos' },
+      { iso: '2026-06-26T22:00:00Z', venue: 'Hard Rock Stadium',        city: 'Miami',            country: 'Estados Unidos' },
+    ],
+    D: [
+      { iso: '2026-06-13T02:00:00Z', venue: 'SoFi Stadium',             city: 'Los Angeles',      country: 'Estados Unidos' },
+      { iso: '2026-06-13T00:00:00Z', venue: 'NRG Stadium',              city: 'Houston',          country: 'Estados Unidos' },
+      { iso: '2026-06-20T02:00:00Z', venue: "Levi's Stadium",           city: 'São Francisco',    country: 'Estados Unidos' },
+      { iso: '2026-06-20T00:00:00Z', venue: 'Arrowhead Stadium',        city: 'Kansas City',      country: 'Estados Unidos' },
+      { iso: '2026-06-26T02:00:00Z', venue: 'MetLife Stadium',          city: 'Nova York/NJ',     country: 'Estados Unidos' },
+      { iso: '2026-06-26T02:00:00Z', venue: 'SoFi Stadium',             city: 'Los Angeles',      country: 'Estados Unidos' },
+    ],
+    E: [
+      { iso: '2026-06-13T19:00:00Z', venue: 'Mercedes-Benz Stadium',    city: 'Atlanta',          country: 'Estados Unidos' },
+      { iso: '2026-06-13T22:00:00Z', venue: 'Arrowhead Stadium',        city: 'Kansas City',      country: 'Estados Unidos' },
+      { iso: '2026-06-20T19:00:00Z', venue: 'Hard Rock Stadium',        city: 'Miami',            country: 'Estados Unidos' },
+      { iso: '2026-06-20T22:00:00Z', venue: 'NRG Stadium',              city: 'Houston',          country: 'Estados Unidos' },
+      { iso: '2026-06-27T02:00:00Z', venue: 'SoFi Stadium',             city: 'Los Angeles',      country: 'Estados Unidos' },
+      { iso: '2026-06-27T02:00:00Z', venue: 'Arrowhead Stadium',        city: 'Kansas City',      country: 'Estados Unidos' },
+    ],
+    F: [
+      { iso: '2026-06-14T02:00:00Z', venue: 'Rose Bowl',                city: 'Los Angeles',      country: 'Estados Unidos' },
+      { iso: '2026-06-14T00:00:00Z', venue: "Levi's Stadium",           city: 'São Francisco',    country: 'Estados Unidos' },
+      { iso: '2026-06-21T02:00:00Z', venue: 'SoFi Stadium',             city: 'Los Angeles',      country: 'Estados Unidos' },
+      { iso: '2026-06-21T00:00:00Z', venue: 'BC Place',                 city: 'Vancouver',        country: 'Canadá' },
+      { iso: '2026-06-27T02:00:00Z', venue: 'Rose Bowl',                city: 'Los Angeles',      country: 'Estados Unidos' },
+      { iso: '2026-06-27T02:00:00Z', venue: "Levi's Stadium",           city: 'São Francisco',    country: 'Estados Unidos' },
+    ],
+    G: [
+      { iso: '2026-06-14T19:00:00Z', venue: 'Gillette Stadium',         city: 'Boston',           country: 'Estados Unidos' },
+      { iso: '2026-06-14T22:00:00Z', venue: 'Lincoln Financial Field',  city: 'Filadélfia',       country: 'Estados Unidos' },
+      { iso: '2026-06-21T19:00:00Z', venue: 'MetLife Stadium',          city: 'Nova York/NJ',     country: 'Estados Unidos' },
+      { iso: '2026-06-21T22:00:00Z', venue: 'Mercedes-Benz Stadium',    city: 'Atlanta',          country: 'Estados Unidos' },
+      { iso: '2026-06-27T22:00:00Z', venue: 'Gillette Stadium',         city: 'Boston',           country: 'Estados Unidos' },
+      { iso: '2026-06-27T22:00:00Z', venue: 'Lincoln Financial Field',  city: 'Filadélfia',       country: 'Estados Unidos' },
+    ],
+    H: [
+      { iso: '2026-06-15T01:00:00Z', venue: 'NRG Stadium',              city: 'Houston',          country: 'Estados Unidos' },
+      { iso: '2026-06-15T00:00:00Z', venue: 'Hard Rock Stadium',        city: 'Miami',            country: 'Estados Unidos' },
+      { iso: '2026-06-22T01:00:00Z', venue: 'AT&T Stadium',             city: 'Dallas',           country: 'Estados Unidos' },
+      { iso: '2026-06-22T00:00:00Z', venue: 'Mercedes-Benz Stadium',    city: 'Atlanta',          country: 'Estados Unidos' },
+      { iso: '2026-06-28T22:00:00Z', venue: 'NRG Stadium',              city: 'Houston',          country: 'Estados Unidos' },
+      { iso: '2026-06-28T22:00:00Z', venue: 'Hard Rock Stadium',        city: 'Miami',            country: 'Estados Unidos' },
+    ],
+    I: [
+      { iso: '2026-06-15T19:00:00Z', venue: 'Gillette Stadium',         city: 'Boston',           country: 'Estados Unidos' },
+      { iso: '2026-06-15T22:00:00Z', venue: 'Lincoln Financial Field',  city: 'Filadélfia',       country: 'Estados Unidos' },
+      { iso: '2026-06-22T19:00:00Z', venue: 'MetLife Stadium',          city: 'Nova York/NJ',     country: 'Estados Unidos' },
+      { iso: '2026-06-22T22:00:00Z', venue: 'Gillette Stadium',         city: 'Boston',           country: 'Estados Unidos' },
+      { iso: '2026-06-28T02:00:00Z', venue: 'MetLife Stadium',          city: 'Nova York/NJ',     country: 'Estados Unidos' },
+      { iso: '2026-06-28T02:00:00Z', venue: 'Lincoln Financial Field',  city: 'Filadélfia',       country: 'Estados Unidos' },
+    ],
+    J: [
+      { iso: '2026-06-16T02:00:00Z', venue: 'Arrowhead Stadium',        city: 'Kansas City',      country: 'Estados Unidos' },
+      { iso: '2026-06-16T00:00:00Z', venue: 'Rose Bowl',                city: 'Los Angeles',      country: 'Estados Unidos' },
+      { iso: '2026-06-23T02:00:00Z', venue: 'AT&T Stadium',             city: 'Dallas',           country: 'Estados Unidos' },
+      { iso: '2026-06-23T00:00:00Z', venue: 'NRG Stadium',              city: 'Houston',          country: 'Estados Unidos' },
+      { iso: '2026-06-28T19:00:00Z', venue: 'Arrowhead Stadium',        city: 'Kansas City',      country: 'Estados Unidos' },
+      { iso: '2026-06-28T19:00:00Z', venue: 'Rose Bowl',                city: 'Los Angeles',      country: 'Estados Unidos' },
+    ],
+    K: [
+      { iso: '2026-06-16T19:00:00Z', venue: 'Hard Rock Stadium',        city: 'Miami',            country: 'Estados Unidos' },
+      { iso: '2026-06-16T22:00:00Z', venue: 'Mercedes-Benz Stadium',    city: 'Atlanta',          country: 'Estados Unidos' },
+      { iso: '2026-06-23T19:00:00Z', venue: 'Lincoln Financial Field',  city: 'Filadélfia',       country: 'Estados Unidos' },
+      { iso: '2026-06-23T22:00:00Z', venue: 'Gillette Stadium',         city: 'Boston',           country: 'Estados Unidos' },
+      { iso: '2026-06-29T22:00:00Z', venue: 'Hard Rock Stadium',        city: 'Miami',            country: 'Estados Unidos' },
+      { iso: '2026-06-29T22:00:00Z', venue: 'Mercedes-Benz Stadium',    city: 'Atlanta',          country: 'Estados Unidos' },
+    ],
+    L: [
+      { iso: '2026-06-17T02:00:00Z', venue: 'Gillette Stadium',         city: 'Boston',           country: 'Estados Unidos' },
+      { iso: '2026-06-17T00:00:00Z', venue: 'MetLife Stadium',          city: 'Nova York/NJ',     country: 'Estados Unidos' },
+      { iso: '2026-06-24T02:00:00Z', venue: 'MetLife Stadium',          city: 'Nova York/NJ',     country: 'Estados Unidos' },
+      { iso: '2026-06-24T00:00:00Z', venue: 'Gillette Stadium',         city: 'Boston',           country: 'Estados Unidos' },
+      { iso: '2026-06-29T19:00:00Z', venue: 'MetLife Stadium',          city: 'Nova York/NJ',     country: 'Estados Unidos' },
+      { iso: '2026-06-29T19:00:00Z', venue: 'Gillette Stadium',         city: 'Boston',           country: 'Estados Unidos' },
+    ],
+  };
+
   let matchCounter = 1;
-  const matchData = byGroup.flatMap(({ group, teamIds }, groupIndex) => {
+  const matchData = byGroup.flatMap(({ group, teamIds }, _groupIndex) => {
     const fixtures = groupFixtures(teamIds);
+    const slots = groupSlots[group.code] ?? [];
     return fixtures.map(([homeTeamId, awayTeamId], fixtureIndex) => {
       const num = matchCounter++;
-      const datetimeUtc = new Date(baseDate.getTime() + (groupIndex * 6 + fixtureIndex) * 4 * 60 * 60 * 1000);
+      const slot = slots[fixtureIndex];
+      const datetimeUtc = slot ? new Date(slot.iso) : new Date(`2026-06-11T16:00:00Z`);
       return {
         id: `match_${String(num).padStart(3, '0')}`,
         externalId: null,
         competitionId,
         stageId: 'stage_group',
         groupId: group.id,
-        roundLabel: `Group ${group.code} - Matchday ${Math.floor(fixtureIndex / 2) + 1}`,
+        roundLabel: `Grupo ${group.code} - Rodada ${Math.floor(fixtureIndex / 2) + 1}`,
         matchNumber: num,
-        venue: `Stadium ${group.code}${fixtureIndex + 1}`,
-        city: 'TBD',
-        country: 'United States',
+        venue: slot?.venue ?? 'TBD',
+        city: slot?.city ?? 'TBD',
+        country: slot?.country ?? 'Estados Unidos',
         date: new Date(datetimeUtc.toISOString().slice(0, 10)),
         time: datetimeUtc.toISOString().slice(11, 16),
         datetimeUtc,
