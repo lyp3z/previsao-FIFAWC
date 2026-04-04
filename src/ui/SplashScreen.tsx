@@ -3,20 +3,12 @@
 import { useState, useEffect } from 'react';
 
 export function SplashScreen() {
-  const [visible, setVisible] = useState(false);
-  const [phase, setPhase] = useState<'in' | 'hold' | 'out'>('in');
+  const [phase, setPhase] = useState<'in' | 'hold' | 'out' | 'done'>('in');
 
   useEffect(() => {
-    if (typeof sessionStorage === 'undefined') return;
-    if (sessionStorage.getItem('gf_splash')) return;
-    sessionStorage.setItem('gf_splash', '1');
-
-    setVisible(true);
-
     const holdTimer  = setTimeout(() => setPhase('hold'), 400);
     const fadeTimer  = setTimeout(() => setPhase('out'),  2400);
-    const closeTimer = setTimeout(() => setVisible(false), 3100);
-
+    const closeTimer = setTimeout(() => setPhase('done'), 3100);
     return () => {
       clearTimeout(holdTimer);
       clearTimeout(fadeTimer);
@@ -24,7 +16,7 @@ export function SplashScreen() {
     };
   }, []);
 
-  if (!visible) return null;
+  if (phase === 'done') return null;
 
   return (
     <div
@@ -33,7 +25,6 @@ export function SplashScreen() {
         background: '#030608',
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
-        gap: 0,
         opacity: phase === 'out' ? 0 : 1,
         transition: phase === 'out' ? 'opacity 0.7s ease' : 'none',
         pointerEvents: phase === 'out' ? 'none' : 'all',
@@ -44,7 +35,6 @@ export function SplashScreen() {
       <div style={{
         position: 'absolute', inset: 0, zIndex: 0,
         background: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(34,197,94,0.07) 0%, transparent 70%)',
-        animation: phase === 'in' ? 'none' : 'glowPulse 2s ease-in-out infinite',
       }} />
 
       {/* Ball */}
@@ -59,7 +49,8 @@ export function SplashScreen() {
 
       {/* Green divider line */}
       <div style={{
-        height: 2, background: 'linear-gradient(90deg, transparent, #22c55e, transparent)',
+        height: 2,
+        background: 'linear-gradient(90deg, transparent, #22c55e, transparent)',
         zIndex: 1, marginBottom: '1.5rem',
         width: phase === 'in' ? 0 : '280px',
         transition: 'width 0.5s ease 0.3s',
@@ -135,10 +126,6 @@ export function SplashScreen() {
         @keyframes splashProgress {
           from { width: 0%; }
           to   { width: 100%; }
-        }
-        @keyframes glowPulse {
-          0%, 100% { opacity: 0.8; }
-          50%       { opacity: 1.4; }
         }
       `}</style>
     </div>
