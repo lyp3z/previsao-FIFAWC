@@ -34,16 +34,25 @@ export default function SimuladorPage() {
 
   async function loadGroups() {
     setLoading(true);
-    const res = await fetch('/api/groups');
-    const json = await res.json();
-    const groupsWithMatches = await Promise.all(
-      json.data.map(async (g: { code: string }) => {
-        const r = await fetch(`/api/groups/${g.code}`);
-        const d = await r.json();
-        return d.data;
-      })
-    );
-    setGroups(groupsWithMatches);
+    try {
+      const [groupsRes, matchesRes] = await Promise.all([
+        fetch('/api/groups'),
+        fetch('/api/matches?stage=GROUP'),
+      ]);
+      const groupsJson = await groupsRes.json();
+      const matchesJson = await matchesRes.json();
+
+      const allMatches: Match[] = matchesJson.data ?? [];
+      const groupList: Group[] = (groupsJson.data ?? []).map(
+        (g: { id: string; code: string }) => ({
+          ...g,
+          matches: allMatches.filter((m) => m.group?.code === g.code),
+        })
+      );
+      setGroups(groupList);
+    } catch (err) {
+      console.error('Erro ao carregar partidas:', err);
+    }
     setLoading(false);
   }
 
