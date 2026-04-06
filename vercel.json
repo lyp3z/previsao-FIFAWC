@@ -1,16 +1,16 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
-    { "path": "/api/sync/matches",          "schedule": "0 6 * * *"     },
-    { "path": "/api/sync/live",             "schedule": "*/2 * * * *"   },
-    { "path": "/api/sync/standings",        "schedule": "*/5 * * * *"   },
-    { "path": "/api/sync/knockout",         "schedule": "*/10 * * * *"  },
-    { "path": "/api/sync/current-stage",    "schedule": "0 * * * *"     },
-    { "path": "/api/sync/team-stats",       "schedule": "*/15 * * * *"  },
-    { "path": "/api/sync/features",         "schedule": "*/15 * * * *"  },
-    { "path": "/api/sync/predictions",      "schedule": "*/30 * * * *"  },
-    { "path": "/api/sync/projections",      "schedule": "0 */2 * * *"   },
-    { "path": "/api/sync/odds",             "schedule": "*/10 * * * *"  },
-    { "path": "/api/sync/betting-insights", "schedule": "*/15 * * * *"  }
+    { "path": "/api/sync/matches",          "schedule": "0 6 * * *"  },
+    { "path": "/api/sync/live",             "schedule": "0 12 * * *" },
+    { "path": "/api/sync/standings",        "schedule": "0 7 * * *"  },
+    { "path": "/api/sync/knockout",         "schedule": "0 8 * * *"  },
+    { "path": "/api/sync/current-stage",    "schedule": "0 9 * * *"  },
+    { "path": "/api/sync/team-stats",       "schedule": "0 10 * * *" },
+    { "path": "/api/sync/features",         "schedule": "0 11 * * *" },
+    { "path": "/api/sync/predictions",      "schedule": "0 13 * * *" },
+    { "path": "/api/sync/projections",      "schedule": "0 14 * * *" },
+    { "path": "/api/sync/odds",             "schedule": "0 15 * * *" },
+    { "path": "/api/sync/betting-insights", "schedule": "0 16 * * *" }
   ]
 }
