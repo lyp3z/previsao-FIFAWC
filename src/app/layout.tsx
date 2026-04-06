@@ -26,12 +26,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Sidebar />
 
         {/* Main content area — offset by sidebar width on desktop */}
-        <div className="lg:ml-56 min-h-screen flex flex-col">
+        <div className="lg:ml-56 min-h-screen flex flex-col overflow-x-hidden">
           {/* Topbar */}
           <Topbar />
 
           {/* Page content — below topbar */}
-          <main className="pt-14 flex-1">
+          <main className="pt-14 pb-20 lg:pb-0 flex-1">
             {children}
           </main>
         </div>

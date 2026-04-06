@@ -33,51 +33,68 @@ function MatchCard({ m }: { m: DbMatch }) {
   const label = m.roundLabel
     ?? (m.group ? `Grupo ${m.group.code}` : m.stage.name);
 
+  const homeWins = isFinished && m.homeScore > m.awayScore;
+  const awayWins = isFinished && m.awayScore > m.homeScore;
+
   return (
     <div className={`rounded-xl border transition-all ${
-      isLive ? 'bg-[#0d1117] border-red-500/25 shadow-[0_0_12px_rgba(239,68,68,0.06)]'
-             : 'bg-[#0d1117] border-[#1e2d3d] hover:border-slate-700'
+      isLive
+        ? 'bg-[#0d1117] border-red-500/30 shadow-[0_0_16px_rgba(239,68,68,0.08)]'
+        : 'bg-[#0d1117] border-[#1e2d3d] hover:border-slate-600'
     }`}>
-      <div className="p-4">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest truncate max-w-[160px]">{label}</span>
-          <div className="flex items-center gap-2 shrink-0">
-            {isLive    && <Badge variant="live">● {m.minute ?? 'AO VIVO'}</Badge>}
+      <div className="px-4 pt-3 pb-2">
+        {/* Header row: label left, status right */}
+        <div className="flex items-center justify-between mb-2.5">
+          <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest truncate max-w-[130px]">
+            {label}
+          </span>
+          <div className="shrink-0">
+            {isLive    && <Badge variant="live">● {m.minute ? `${m.minute}'` : 'AO VIVO'}</Badge>}
             {isFinished && <Badge variant="finished">Encerrado</Badge>}
             {!isLive && !isFinished && (
-              <span className="text-xs text-slate-500">{m.datetimeUtc.toISOString().slice(11, 16)}</span>
+              <span className="text-[11px] font-medium text-slate-500 tabular-nums">
+                {m.datetimeUtc.toISOString().slice(11, 16)}
+              </span>
             )}
           </div>
         </div>
 
-        {/* Teams */}
-        <div className="flex items-center gap-3">
+        {/* Teams + Score */}
+        <div className="flex items-center gap-2">
+          {/* Home */}
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            {hUrl && <img src={hUrl} alt={m.homeTeam.code} style={{ width: 26, height: 17, objectFit: 'cover', borderRadius: 3, border: '1px solid rgba(255,255,255,0.08)' }} />}
-            <span className={`font-bold text-sm truncate ${isFinished && m.homeScore > m.awayScore ? 'text-white' : 'text-slate-300'}`}>
+            {hUrl && (
+              <img src={hUrl} alt={m.homeTeam.code}
+                style={{ width: 24, height: 16, objectFit: 'cover', borderRadius: 2, border: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }} />
+            )}
+            <span className={`font-bold text-sm truncate leading-tight ${homeWins ? 'text-white' : 'text-slate-400'}`}>
               {m.homeTeam.shortName}
             </span>
           </div>
 
-          <div className={`flex items-center gap-1 px-3 py-1.5 rounded-lg min-w-[60px] justify-center ${isLive ? 'bg-red-500/10' : 'bg-white/5'}`}>
-            <span className={`text-lg font-black ${isLive ? 'text-red-300' : 'text-slate-100'}`}>{m.homeScore}</span>
-            <span className="text-slate-700 text-sm font-light">:</span>
-            <span className={`text-lg font-black ${isLive ? 'text-red-300' : 'text-slate-100'}`}>{m.awayScore}</span>
+          {/* Score box */}
+          <div className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg shrink-0 ${isLive ? 'bg-red-500/10 ring-1 ring-red-500/20' : 'bg-white/5'}`}>
+            <span className={`text-xl font-black tabular-nums leading-none ${isLive ? 'text-red-300' : 'text-white'}`}>{m.homeScore}</span>
+            <span className="text-slate-600 text-xs mx-0.5">–</span>
+            <span className={`text-xl font-black tabular-nums leading-none ${isLive ? 'text-red-300' : 'text-white'}`}>{m.awayScore}</span>
           </div>
 
+          {/* Away */}
           <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
-            <span className={`font-bold text-sm truncate text-right ${isFinished && m.awayScore > m.homeScore ? 'text-white' : 'text-slate-300'}`}>
+            <span className={`font-bold text-sm truncate text-right leading-tight ${awayWins ? 'text-white' : 'text-slate-400'}`}>
               {m.awayTeam.shortName}
             </span>
-            {aUrl && <img src={aUrl} alt={m.awayTeam.code} style={{ width: 26, height: 17, objectFit: 'cover', borderRadius: 3, border: '1px solid rgba(255,255,255,0.08)' }} />}
+            {aUrl && (
+              <img src={aUrl} alt={m.awayTeam.code}
+                style={{ width: 24, height: 16, objectFit: 'cover', borderRadius: 2, border: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }} />
+            )}
           </div>
         </div>
 
-        {/* Prediction bar */}
+        {/* Prediction bar — only shown when data exists */}
         {m.prediction && (
-          <div className="mt-3 pt-3 border-t border-white/5">
-            <div className="flex rounded-full overflow-hidden h-1.5">
+          <div className="mt-2.5 pt-2.5 border-t border-white/5">
+            <div className="flex rounded-full overflow-hidden h-1">
               <div className="bg-blue-500" style={{ width: `${m.prediction.homeWinProbability * 100}%` }} />
               <div className="bg-slate-600" style={{ width: `${m.prediction.drawProbability * 100}%` }} />
               <div className="bg-slate-500" style={{ width: `${m.prediction.awayWinProbability * 100}%` }} />
@@ -91,8 +108,10 @@ function MatchCard({ m }: { m: DbMatch }) {
         )}
       </div>
 
-      <div className="px-4 pb-3 flex items-center gap-1 text-[10px] text-slate-700">
-        <MapPin size={9} /> {m.venue}, {m.city}
+      {/* Venue footer */}
+      <div className="px-4 pb-2.5 flex items-center gap-1 text-[10px] text-slate-700 border-t border-white/[0.03] mt-0.5 pt-1.5">
+        <MapPin size={9} className="shrink-0" />
+        <span className="truncate">{m.venue}, {m.city}</span>
       </div>
     </div>
   );
@@ -182,7 +201,7 @@ export function JogosClient({ matches }: Props) {
           <p>Nenhum jogo encontrado com estes filtros.</p>
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
           {filtered.map(m => <MatchCard key={m.id} m={m} />)}
         </div>
       )}

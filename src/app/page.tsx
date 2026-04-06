@@ -145,18 +145,18 @@ export default async function DashboardPage() {
     <div className="p-5 lg:p-7 space-y-7 max-w-[1280px] mx-auto">
 
       {/* ── Hero ───────────────────────────────── */}
-      <div className="relative rounded-2xl overflow-hidden border border-emerald-500/20 bg-gradient-to-br from-[#0d1117] via-[#0a1520] to-[#071018]"
-        style={{ boxShadow: '0 0 40px rgba(16,185,129,0.06), inset 0 1px 0 rgba(16,185,129,0.08)' }}>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_30%_50%,rgba(16,185,129,0.07),transparent)]" />
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.05),transparent)]" />
+      <div className="relative rounded-2xl overflow-hidden border border-emerald-500/20 border-l-2 border-l-emerald-500 bg-gradient-to-r from-emerald-500/15 via-[#0d1117] to-blue-500/10"
+        style={{ boxShadow: '0 0 40px rgba(16,185,129,0.08), inset 0 1px 0 rgba(16,185,129,0.10)' }}>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_30%_50%,rgba(16,185,129,0.09),transparent)]" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.07),transparent)]" />
         <div className="relative px-6 py-8 md:px-8 md:py-10 flex flex-col md:flex-row md:items-center gap-6">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-3">
               <Badge variant="value"><Zap size={10} /> Fase de Grupos</Badge>
               {live > 0 && <Badge variant="live"><Radio size={10} /> {live} ao vivo</Badge>}
             </div>
-            <h1 className="text-2xl md:text-3xl font-black text-white leading-tight mb-2">
-              Copa do Mundo 2026
+            <h1 className="text-3xl font-black text-white leading-tight mb-2">
+              🏆 Copa do Mundo 2026
             </h1>
             <p className="text-slate-400 text-sm max-w-md">
               Probabilidades, odds e value bets em tempo real para todos os jogos da competição.
@@ -284,7 +284,7 @@ export default async function DashboardPage() {
 
       {/* ── Quick access ─────────────────────────── */}
       <section>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {[
             { href: '/probabilidades', label: 'Probabilidades', desc: 'Modelo Poisson', icon: BarChart3,  color: 'from-blue-500/10 to-blue-500/5 border-blue-500/20 text-blue-400'     },
             { href: '/odds',           label: 'Odds',           desc: '3 casas',        icon: Activity,   color: 'from-purple-500/10 to-purple-500/5 border-purple-500/20 text-purple-400' },
