@@ -297,7 +297,7 @@ export default function SimuladorPage() {
   const currentGroup = groups?.find((g) => g.code === selectedGroup);
 
   return (
-    <div>
+    <div className="p-5 lg:p-7 max-w-[1280px] mx-auto">
       {/* Header */}
       <div style={{ marginBottom: '1.5rem' }}>
         <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.2rem' }}>
