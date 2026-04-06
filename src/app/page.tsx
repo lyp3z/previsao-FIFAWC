@@ -85,7 +85,7 @@ function MatchRow({ m }: { m: DbMatch }) {
     }`}>
       <div className="flex items-center justify-between mb-2.5">
         <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest truncate max-w-[140px]">
-          {m.roundLabel ?? m.group?.code ? `Grupo ${m.group?.code}` : m.stage?.name}
+          {m.roundLabel ?? (m.group ? `Grupo ${m.group.code}` : m.stage?.name)}
         </span>
         <div className="flex items-center gap-2 shrink-0">
           {isLive    && <Badge variant="live">● {m.minute}'</Badge>}
@@ -145,8 +145,10 @@ export default async function DashboardPage() {
     <div className="p-5 lg:p-7 space-y-7 max-w-[1280px] mx-auto">
 
       {/* ── Hero ───────────────────────────────── */}
-      <div className="relative rounded-2xl overflow-hidden border border-[#1e2d3d] bg-gradient-to-br from-[#0d1117] to-[#0a1520]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(16,185,129,0.08),transparent)]" />
+      <div className="relative rounded-2xl overflow-hidden border border-emerald-500/20 bg-gradient-to-br from-[#0d1117] via-[#0a1520] to-[#071018]"
+        style={{ boxShadow: '0 0 40px rgba(16,185,129,0.06), inset 0 1px 0 rgba(16,185,129,0.08)' }}>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_30%_50%,rgba(16,185,129,0.07),transparent)]" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.05),transparent)]" />
         <div className="relative px-6 py-8 md:px-8 md:py-10 flex flex-col md:flex-row md:items-center gap-6">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-3">
@@ -160,13 +162,13 @@ export default async function DashboardPage() {
               Probabilidades, odds e value bets em tempo real para todos os jogos da competição.
             </p>
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-3 shrink-0">
             {[
-              { label: 'Jogos',    value: total,   icon: CalendarDays, color: 'text-blue-400'   },
-              { label: 'Jogados',  value: played,  icon: Trophy,       color: 'text-amber-400'  },
-              { label: 'Ao vivo',  value: live,    icon: Radio,        color: 'text-red-400'    },
+              { label: 'Total',    value: total,   icon: CalendarDays, color: 'text-blue-400',  bg: 'bg-blue-500/10 border-blue-500/20'  },
+              { label: 'Jogados',  value: played,  icon: Trophy,       color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
+              { label: 'Ao vivo',  value: live,    icon: Radio,        color: 'text-red-400',   bg: 'bg-red-500/10 border-red-500/20'    },
             ].map(s => (
-              <div key={s.label} className="bg-white/4 border border-white/8 rounded-xl p-3 text-center">
+              <div key={s.label} className={`${s.bg} border rounded-xl p-3 text-center min-w-[72px]`}>
                 <s.icon size={18} className={`mx-auto mb-1 ${s.color}`} />
                 <div className="text-xl font-black text-white">{s.value}</div>
                 <div className="text-[10px] text-slate-500 uppercase tracking-wider">{s.label}</div>
