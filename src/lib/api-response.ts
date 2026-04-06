@@ -17,6 +17,15 @@ export function fail(message: string, status = 400, details?: unknown) {
   );
 }
 
+export function serverError(error: unknown, details?: unknown) {
+  const message = error instanceof Error ? error.message : 'Internal server error';
+  return fail(message, 500, details);
+}
+
+export function notFound(message = 'Not found') {
+  return fail(message, 404);
+}
+
 export async function withErrorHandling<T>(fn: () => Promise<T>) {
   try {
     const data = await fn();

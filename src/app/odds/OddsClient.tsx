@@ -207,7 +207,7 @@ export function OddsClient({ matchOddsData }: Props) {
             <YAxis tick={{ fill: '#475569', fontSize: 10 }} tickLine={false} axisLine={false} unit="%" />
             <Tooltip
               contentStyle={{ background: '#0d1117', border: '1px solid #1e2d3d', borderRadius: 8, fontSize: 12 }}
-              formatter={(v: number, name: string) => [`${v}%`, name]}
+              formatter={(v) => [`${v}%`]}
             />
             <Line type="monotone" dataKey="Casa"   stroke="#3b82f6" strokeWidth={2} dot={{ fill: '#3b82f6', r: 4 }} />
             <Line type="monotone" dataKey="Empate" stroke="#64748b" strokeWidth={2} dot={{ fill: '#64748b', r: 4 }} />

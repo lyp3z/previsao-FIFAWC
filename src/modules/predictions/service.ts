@@ -135,10 +135,21 @@ export async function computeProjections(competitionId: string, iterations = 5_0
   const projections = runMonteCarlo(groupDefs, strengths, iterations);
 
   for (const [teamId, proj] of Object.entries(projections)) {
+    const data = {
+      finishFirstProbability:       proj.finishFirst,
+      finishSecondProbability:      proj.finishSecond,
+      finishThirdProbability:       proj.finishThird,
+      reachRoundOf32Probability:    proj.reachRoundOf32,
+      reachRoundOf16Probability:    proj.reachRoundOf16,
+      reachQuarterFinalProbability: proj.reachQuarterFinal,
+      reachSemiFinalProbability:    proj.reachSemiFinal,
+      reachFinalProbability:        proj.reachFinal,
+      winTournamentProbability:     proj.winTournament,
+    };
     await prisma.teamTournamentProjection.upsert({
       where: { teamId_competitionId_modelId: { teamId, competitionId, modelId: model.id } },
-      create: { teamId, competitionId, modelId: model.id, ...proj },
-      update: proj,
+      create: { teamId, competitionId, modelId: model.id, ...data },
+      update: data,
     });
   }
 

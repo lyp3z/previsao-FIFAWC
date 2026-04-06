@@ -5,12 +5,12 @@ const envSchema = z.object({
   DATABASE_URL: z.string().default(''),
   DIRECT_DATABASE_URL: z.string().optional(),
   REDIS_URL: z.string().optional(),
-  UPSTASH_REDIS_REST_URL: z.string().url().optional(),
+  UPSTASH_REDIS_REST_URL: z.string().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   SPORTS_API_KEY: z.string().optional(),
-  SPORTS_API_BASE_URL: z.string().url().optional(),
+  SPORTS_API_BASE_URL: z.string().optional(),
   CRON_SECRET: z.string().default(''),
-  NEXT_PUBLIC_APP_URL: z.string().url().optional(),
+  NEXT_PUBLIC_APP_URL: z.string().optional(),
   SPORTS_PROVIDER: z.enum(['mock', 'real']).default('mock'),
 });
 

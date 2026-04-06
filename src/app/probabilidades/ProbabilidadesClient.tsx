@@ -236,7 +236,7 @@ export function ProbabilidadesClient({ predictions, projections }: Props) {
                       <PolarAngleAxis dataKey="fase" tick={{ fill: '#64748b', fontSize: 11 }} />
                       <Radar dataKey="value" stroke="#10b981" fill="#10b981" fillOpacity={0.2} strokeWidth={2} />
                       <Tooltip contentStyle={{ background: '#0d1117', border: '1px solid #1e2d3d', borderRadius: 8, fontSize: 12 }}
-                        formatter={(v: number) => [`${v.toFixed(1)}%`, 'Prob.']} />
+                        formatter={(v) => [`${Number(v).toFixed(1)}%`, 'Prob.']} />
                     </RadarChart>
                   </ResponsiveContainer>
                 )}

@@ -238,7 +238,7 @@ export function ValueBetsClient({ insights, stats }: Props) {
               <YAxis tick={{ fill: '#475569', fontSize: 10 }} tickLine={false} axisLine={false} unit="%" />
               <Tooltip
                 contentStyle={{ background: '#0d1117', border: '1px solid #1e2d3d', borderRadius: 8, fontSize: 12 }}
-                formatter={(v: number, name: string) => [`${v}%`, name]}
+                formatter={(v) => [`${v}%`]}
               />
               <Bar dataKey="EV" radius={[4,4,0,0]}>
                 {chartData.map((entry, i) => (
