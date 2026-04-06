@@ -1,16 +1,32 @@
 import Link from 'next/link';
-import { Users, Trophy, TrendingUp } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Users } from 'lucide-react';
 import { ProgressBar } from '@/components/ui/progress';
 import { flagUrl } from '@/lib/flag';
-import { MOCK_PROJECTIONS, TEAMS } from '@/data/mock';
+import { prisma } from '@/lib/prisma';
 
-export default function TimesPage() {
-  // Merge all teams with projections
-  const teamsWithProj = Object.values(TEAMS).map(team => {
-    const proj = MOCK_PROJECTIONS.find(p => p.team.code === team.code);
-    return { team, proj };
-  }).sort((a, b) => (b.proj?.winTournament ?? 0) - (a.proj?.winTournament ?? 0));
+export const runtime = 'nodejs';
+export const revalidate = 300;
+
+export default async function TimesPage() {
+  const [teams, projections] = await Promise.all([
+    prisma.team.findMany({
+      include: { group: true },
+      orderBy: { shortName: 'asc' },
+    }),
+    prisma.teamTournamentProjection.findMany({
+      where: { competitionId: 'wc_2026' },
+      orderBy: { winTournamentProbability: 'desc' },
+    }),
+  ]);
+
+  const projMap = new Map(projections.map(p => [p.teamId, p]));
+
+  // Sort: teams with projections first (by win probability), then alphabetical
+  const sorted = [...teams].sort((a, b) => {
+    const pa = projMap.get(a.id)?.winTournamentProbability ?? -1;
+    const pb = projMap.get(b.id)?.winTournamentProbability ?? -1;
+    return pb - pa;
+  });
 
   return (
     <div className="p-5 lg:p-7 max-w-[1280px] mx-auto space-y-5">
@@ -22,14 +38,17 @@ export default function TimesPage() {
         </div>
         <div>
           <h1 className="text-xl font-black text-white">Seleções</h1>
-          <p className="text-xs text-slate-500">48 seleções · Copa do Mundo 2026</p>
+          <p className="text-xs text-slate-500">{teams.length} seleções · Copa do Mundo 2026</p>
         </div>
       </div>
 
       {/* Grid */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {teamsWithProj.map(({ team, proj }) => {
+        {sorted.map((team) => {
+          const proj = projMap.get(team.id);
           const url = flagUrl(team.code, 80);
+          const groupCode = team.group?.code;
+
           return (
             <Link key={team.id} href={`/times/${team.id}`}
               className="bg-[#0d1117] border border-[#1e2d3d] rounded-xl p-4
@@ -44,7 +63,9 @@ export default function TimesPage() {
                   <div className="font-bold text-sm text-white group-hover:text-emerald-300 transition-colors">
                     {team.shortName}
                   </div>
-                  <div className="text-[10px] text-slate-500">Grupo {team.group} · {team.code}</div>
+                  <div className="text-[10px] text-slate-500">
+                    {groupCode ? `Grupo ${groupCode} · ` : ''}{team.code}
+                  </div>
                 </div>
               </div>
 
@@ -52,13 +73,13 @@ export default function TimesPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] text-slate-600">Chance de título</span>
-                    <span className="text-xs font-black text-amber-400">{(proj.winTournament * 100).toFixed(1)}%</span>
+                    <span className="text-xs font-black text-amber-400">{(proj.winTournamentProbability * 100).toFixed(1)}%</span>
                   </div>
-                  <ProgressBar value={proj.winTournament * 100} color="amber" size="sm" />
+                  <ProgressBar value={proj.winTournamentProbability * 100} color="amber" size="sm" />
                   <div className="grid grid-cols-3 gap-1 text-[9px] text-slate-600 pt-1">
-                    <span>R16: <span className="text-slate-400">{(proj.reachRoundOf16 * 100).toFixed(0)}%</span></span>
-                    <span>SF: <span className="text-slate-400">{(proj.reachSemiFinal * 100).toFixed(0)}%</span></span>
-                    <span>🏆: <span className="text-amber-400">{(proj.winTournament * 100).toFixed(0)}%</span></span>
+                    <span>R16: <span className="text-slate-400">{(proj.reachRoundOf16Probability * 100).toFixed(0)}%</span></span>
+                    <span>SF: <span className="text-slate-400">{(proj.reachSemiFinalProbability * 100).toFixed(0)}%</span></span>
+                    <span>🏆: <span className="text-amber-400">{(proj.winTournamentProbability * 100).toFixed(0)}%</span></span>
                   </div>
                 </div>
               ) : (
