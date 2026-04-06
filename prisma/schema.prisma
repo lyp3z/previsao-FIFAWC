@@ -50,12 +50,15 @@ model Competition {
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 
-  currentStage Stage?      @relation("CurrentStage", fields: [currentStageId], references: [id])
-  stages       Stage[]     @relation("CompetitionStages")
-  groups       Group[]
-  matches      Match[]
-  standings    Standing[]
-  knockout     KnockoutSlot[]
+  currentStage  Stage?       @relation("CurrentStage", fields: [currentStageId], references: [id])
+  stages        Stage[]      @relation("CompetitionStages")
+  groups        Group[]
+  matches       Match[]
+  standings     Standing[]
+  knockout      KnockoutSlot[]
+  teamStats     TeamStatsSnapshot[]
+  projections   TeamTournamentProjection[]
+  featureSets   MatchFeatureSet[]
 
   @@index([slug])
   @@index([year])
@@ -122,6 +125,10 @@ model Team {
   homeKnockoutSlots     KnockoutSlot[] @relation("KnockoutHomeTeam")
   awayKnockoutSlots     KnockoutSlot[] @relation("KnockoutAwayTeam")
   winnerKnockoutSlots   KnockoutSlot[] @relation("KnockoutWinnerTeam")
+  statsSnapshot         TeamStatsSnapshot?
+  projections           TeamTournamentProjection[]
+  homeFeatureSets       MatchFeatureSet[] @relation("FeatureHomeTeam")
+  awayFeatureSets       MatchFeatureSet[] @relation("FeatureAwayTeam")
 
   @@index([groupId])
 }
@@ -157,12 +164,17 @@ model Match {
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 
-  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
-  stage       Stage       @relation(fields: [stageId], references: [id], onDelete: Cascade)
-  group       Group?      @relation(fields: [groupId], references: [id], onDelete: SetNull)
-  homeTeam    Team        @relation("HomeTeam", fields: [homeTeamId], references: [id], onDelete: Restrict)
-  awayTeam    Team        @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Restrict)
-  winnerTeam  Team?       @relation("WinnerTeam", fields: [winnerTeamId], references: [id], onDelete: SetNull)
+  competition    Competition       @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  stage          Stage             @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  group          Group?            @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  homeTeam       Team              @relation("HomeTeam", fields: [homeTeamId], references: [id], onDelete: Restrict)
+  awayTeam       Team              @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Restrict)
+  winnerTeam     Team?             @relation("WinnerTeam", fields: [winnerTeamId], references: [id], onDelete: SetNull)
+  prediction     MatchPrediction?
+  featureSet     MatchFeatureSet?
+  odds           MatchOdds[]
+  oddsSnapshots  OddsSnapshot[]
+  bettingInsights BettingInsight[]
 
   @@index([competitionId, datetimeUtc])
   @@index([competitionId, stageId])
@@ -243,4 +255,241 @@ model SimulationSession {
   payload    Json
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Match Intelligence
+// ─────────────────────────────────────────────────────────────
+
+model TeamStatsSnapshot {
+  id              String   @id @default(cuid())
+  teamId          String   @unique
+  competitionId   String
+  matchesPlayed   Int      @default(0)
+  wins            Int      @default(0)
+  draws           Int      @default(0)
+  losses          Int      @default(0)
+  goalsFor        Int      @default(0)
+  goalsAgainst    Int      @default(0)
+  goalDifference  Int      @default(0)
+  avgGoalsFor     Float    @default(0)
+  avgGoalsAgainst Float    @default(0)
+  cleanSheets     Int      @default(0)
+  failedToScore   Int      @default(0)
+  pointsPerMatch  Float    @default(0)
+  recentFormScore Float    @default(0)
+  attackStrength  Float    @default(1)
+  defenseStrength Float    @default(1)
+  updatedAt       DateTime @updatedAt
+
+  team        Team        @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+
+  @@index([competitionId])
+}
+
+model MatchFeatureSet {
+  id                    String   @id @default(cuid())
+  matchId               String   @unique
+  competitionId         String
+  homeTeamId            String
+  awayTeamId            String
+  homeRecentForm        Float    @default(0)
+  awayRecentForm        Float    @default(0)
+  homeAttackStrength    Float    @default(1)
+  awayAttackStrength    Float    @default(1)
+  homeDefenseStrength   Float    @default(1)
+  awayDefenseStrength   Float    @default(1)
+  homeAvgGoalsFor       Float    @default(0)
+  awayAvgGoalsFor       Float    @default(0)
+  homeAvgGoalsAgainst   Float    @default(0)
+  awayAvgGoalsAgainst   Float    @default(0)
+  homePointsPerMatch    Float    @default(0)
+  awayPointsPerMatch    Float    @default(0)
+  stageWeight           Float    @default(1)
+  isKnockout            Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  match       Match       @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  homeTeam    Team        @relation("FeatureHomeTeam", fields: [homeTeamId], references: [id], onDelete: Cascade)
+  awayTeam    Team        @relation("FeatureAwayTeam", fields: [awayTeamId], references: [id], onDelete: Cascade)
+
+  @@index([competitionId])
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Probability Engine
+// ─────────────────────────────────────────────────────────────
+
+model PredictionModel {
+  id          String   @id @default(cuid())
+  name        String
+  version     String
+  description String
+  isActive    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  predictions     MatchPrediction[]
+  projections     TeamTournamentProjection[]
+  bettingInsights BettingInsight[]
+
+  @@unique([name, version])
+}
+
+model MatchPrediction {
+  id                       String   @id @default(cuid())
+  matchId                  String   @unique
+  modelId                  String
+  modelVersion             String
+  homeWinProbability       Float
+  drawProbability          Float
+  awayWinProbability       Float
+  over25Probability        Float?
+  under25Probability       Float?
+  bttsYesProbability       Float?
+  bttsNoProbability        Float?
+  toQualifyHomeProbability Float?
+  toQualifyAwayProbability Float?
+  confidenceScore          Float    @default(0)
+  explanation              String?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  match Match           @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  model PredictionModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  @@index([modelId])
+}
+
+model TeamTournamentProjection {
+  id                            String   @id @default(cuid())
+  teamId                        String
+  competitionId                 String
+  modelId                       String
+  finishFirstProbability        Float    @default(0)
+  finishSecondProbability       Float    @default(0)
+  finishThirdProbability        Float    @default(0)
+  reachRoundOf32Probability     Float    @default(0)
+  reachRoundOf16Probability     Float    @default(0)
+  reachQuarterFinalProbability  Float    @default(0)
+  reachSemiFinalProbability     Float    @default(0)
+  reachFinalProbability         Float    @default(0)
+  winTournamentProbability      Float    @default(0)
+  updatedAt                     DateTime @updatedAt
+
+  team        Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  competition Competition     @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  model       PredictionModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, competitionId, modelId])
+  @@index([competitionId, modelId])
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Odds Intelligence
+// ─────────────────────────────────────────────────────────────
+
+model Bookmaker {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  isActive  Boolean  @default(true)
+  isSharp   Boolean?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  odds     MatchOdds[]
+  insights BettingInsight[]
+}
+
+model Market {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  category  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  odds      MatchOdds[]
+  snapshots OddsSnapshot[]
+  insights  BettingInsight[]
+}
+
+model MatchOdds {
+  id                 String   @id @default(cuid())
+  matchId            String
+  bookmakerId        String
+  marketId           String
+  selectionCode      String
+  selectionLabel     String
+  odd                Float
+  line               Float?
+  impliedProbability Float
+  capturedAt         DateTime
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  match     Match     @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  bookmaker Bookmaker @relation(fields: [bookmakerId], references: [id], onDelete: Cascade)
+  market    Market    @relation(fields: [marketId], references: [id], onDelete: Cascade)
+
+  @@index([matchId, marketId])
+  @@index([matchId, bookmakerId])
+  @@index([capturedAt])
+}
+
+model OddsSnapshot {
+  id                        String   @id @default(cuid())
+  matchId                   String
+  marketId                  String
+  selectionCode             String
+  averageOdd                Float
+  bestOdd                   Float
+  lowestOdd                 Float
+  averageImpliedProbability Float
+  capturedAt                DateTime
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  match  Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  market Market @relation(fields: [marketId], references: [id], onDelete: Cascade)
+
+  @@index([matchId, marketId, capturedAt])
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Value Bet Engine
+// ─────────────────────────────────────────────────────────────
+
+model BettingInsight {
+  id                 String   @id @default(cuid())
+  matchId            String
+  bookmakerId        String
+  marketId           String
+  modelId            String
+  selectionCode      String
+  modelProbability   Float
+  impliedProbability Float
+  fairOdd            Float
+  offeredOdd         Float
+  edge               Float
+  expectedValue      Float
+  confidenceScore    Float
+  confidenceLabel    String
+  isValueBet         Boolean  @default(false)
+  explanation        String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  match     Match           @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  bookmaker Bookmaker       @relation(fields: [bookmakerId], references: [id], onDelete: Cascade)
+  market    Market          @relation(fields: [marketId], references: [id], onDelete: Cascade)
+  model     PredictionModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  @@index([matchId])
+  @@index([isValueBet, expectedValue])
+  @@index([modelId, createdAt])
 }

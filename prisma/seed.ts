@@ -424,6 +424,49 @@ async function main() {
 
   await prisma.knockoutSlot.createMany({ data: knockoutSlots });
 
+  // ── PredictionModel ──────────────────────────────────────────────────────────
+  await prisma.predictionModel.upsert({
+    where: { name_version: { name: 'poisson-v1', version: '1.0.0' } },
+    create: {
+      name: 'poisson-v1',
+      version: '1.0.0',
+      description: 'Poisson model with attack/defense strength from in-tournament stats',
+      isActive: true,
+    },
+    update: { isActive: true },
+  });
+
+  // ── Bookmakers ───────────────────────────────────────────────────────────────
+  const bookmakers = [
+    { slug: 'bet365',   name: 'Bet365',   isSharp: false },
+    { slug: 'pinnacle', name: 'Pinnacle', isSharp: true  },
+    { slug: 'unibet',   name: 'Unibet',   isSharp: false },
+  ];
+  for (const bk of bookmakers) {
+    await prisma.bookmaker.upsert({
+      where: { slug: bk.slug },
+      create: { ...bk, isActive: true },
+      update: { name: bk.name, isSharp: bk.isSharp },
+    });
+  }
+
+  // ── Markets ──────────────────────────────────────────────────────────────────
+  const markets = [
+    { code: '1X2',   name: '1X2 — Resultado Final',    category: 'match' },
+    { code: 'DC',    name: 'Dupla Chance',              category: 'match' },
+    { code: 'DNB',   name: 'Empate Anula Aposta',       category: 'match' },
+    { code: 'OU_25', name: 'Mais/Menos de 2.5 Gols',   category: 'goals' },
+    { code: 'BTTS',  name: 'Ambas Marcam',              category: 'goals' },
+    { code: 'TO_QUALIFY', name: 'Passa de Fase',        category: 'tournament' },
+  ];
+  for (const mkt of markets) {
+    await prisma.market.upsert({
+      where: { code: mkt.code },
+      create: mkt,
+      update: { name: mkt.name, category: mkt.category },
+    });
+  }
+
   console.log('Seed completed successfully.');
 }
 
