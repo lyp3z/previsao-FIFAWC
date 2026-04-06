@@ -2,73 +2,68 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/cn';
 import {
   LayoutDashboard, CalendarDays, Grid2x2, GitBranch,
   FlaskConical, BarChart3, BadgeDollarSign, Gem,
-  Users, Settings, Trophy, Zap,
+  Shield, Settings, Trophy, Zap, TrendingUp,
 } from 'lucide-react';
 
-const NAV_ITEMS = [
+const NAV = [
   { href: '/',               label: 'Visão Geral',   icon: LayoutDashboard },
   { href: '/jogos',          label: 'Jogos',          icon: CalendarDays    },
   { href: '/grupos',         label: 'Grupos',         icon: Grid2x2         },
   { href: '/mata-mata',      label: 'Mata-mata',      icon: GitBranch       },
   { href: '/simulador',      label: 'Simulador',      icon: FlaskConical    },
-  null, // divider
+  null,
   { href: '/probabilidades', label: 'Probabilidades', icon: BarChart3       },
   { href: '/odds',           label: 'Odds',           icon: BadgeDollarSign },
-  { href: '/value-bets',     label: 'Value Bets',     icon: Gem             },
+  { href: '/value-bets',     label: 'Value Bets',     icon: Gem, hot: true  },
   null,
-  { href: '/times',          label: 'Seleções',       icon: Users           },
+  { href: '/times',          label: 'Seleções',       icon: Shield          },
+];
+
+const MOBILE_NAV = [
+  { href: '/',          label: 'Início',   icon: LayoutDashboard },
+  { href: '/jogos',     label: 'Jogos',    icon: CalendarDays    },
+  { href: '/grupos',    label: 'Grupos',   icon: Grid2x2         },
+  { href: '/simulador', label: 'Simular',  icon: FlaskConical    },
+  { href: '/value-bets',label: 'Bets',     icon: Gem             },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden lg:flex flex-col fixed left-0 top-0 h-screen w-56 z-40
-      bg-[#0a0e18] border-r border-[#1a2235]">
-
+    <aside className="hidden lg:flex flex-col w-56 shrink-0 sticky top-0 h-screen bg-[#080c14] border-r border-white/[0.06] overflow-y-auto">
       {/* Logo */}
-      <div className="flex items-center gap-2.5 px-5 py-5 border-b border-[#1a2235]">
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg
-          bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-[0_0_12px_rgba(16,185,129,0.4)]">
-          <Trophy size={16} className="text-white" />
+      <div className="flex items-center gap-3 px-5 h-14 border-b border-white/[0.06] shrink-0">
+        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-[0_0_12px_rgba(16,185,129,0.5)]">
+          <Trophy size={14} className="text-white" />
         </div>
-        <div>
-          <div className="text-sm font-bold text-white leading-tight tracking-tight">GoalForge</div>
-          <div className="text-[10px] text-emerald-500 font-semibold tracking-wider uppercase">2026</div>
+        <div className="flex flex-col">
+          <span className="text-[13px] font-black text-white tracking-tight leading-none">GoalForge</span>
+          <span className="text-[9px] text-emerald-500 font-bold tracking-widest uppercase leading-none mt-0.5">2026</span>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
-        {NAV_ITEMS.map((item, idx) => {
-          if (item === null) {
-            return <div key={`div-${idx}`} className="my-2 border-t border-[#1a2235]" />;
-          }
+      <nav className="flex-1 px-2 py-3 space-y-px">
+        {NAV.map((item, i) => {
+          if (!item) return <div key={i} className="my-2 mx-2 border-t border-white/[0.05]" />;
           const Icon = item.icon;
-          const isActive = item.href === '/'
-            ? pathname === '/'
-            : pathname.startsWith(item.href);
-
+          const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150',
-                isActive
-                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/5',
-              )}
-            >
-              <Icon size={16} className={isActive ? 'text-emerald-400' : ''} />
-              {item.label}
-              {item.href === '/value-bets' && (
-                <span className="ml-auto flex items-center gap-0.5 text-[9px] font-bold text-amber-400 bg-amber-500/15 border border-amber-500/25 px-1.5 py-0.5 rounded-md">
-                  <Zap size={8} />HOT
+            <Link key={item.href} href={item.href}
+              className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 group ${
+                active
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/15'
+                  : 'text-slate-500 hover:text-slate-200 hover:bg-white/[0.04] border border-transparent'
+              }`}>
+              <Icon size={15} className={active ? 'text-emerald-400' : 'text-slate-600 group-hover:text-slate-400'} />
+              <span className="flex-1 truncate">{item.label}</span>
+              {(item as { hot?: boolean }).hot && (
+                <span className="flex items-center gap-0.5 text-[9px] font-black text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded-full">
+                  <Zap size={7} />HOT
                 </span>
               )}
             </Link>
@@ -77,10 +72,10 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="px-3 pb-4 border-t border-[#1a2235] pt-3">
+      <div className="px-2 pb-3 border-t border-white/[0.06] pt-2 shrink-0">
         <Link href="/configuracoes"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all">
-          <Settings size={16} />
+          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-slate-600 hover:text-slate-300 hover:bg-white/[0.04] transition-all border border-transparent">
+          <Settings size={15} />
           Configurações
         </Link>
       </div>
@@ -88,33 +83,17 @@ export function Sidebar() {
   );
 }
 
-// ── Mobile bottom nav ─────────────────────────────────────────────────────────
-
-const MOBILE_NAV = [
-  { href: '/',          label: 'Início',    icon: LayoutDashboard },
-  { href: '/jogos',     label: 'Jogos',     icon: CalendarDays    },
-  { href: '/grupos',    label: 'Grupos',    icon: Grid2x2         },
-  { href: '/simulador', label: 'Simular',   icon: FlaskConical    },
-  { href: '/value-bets',label: 'Bets',      icon: Gem             },
-];
-
 export function MobileNav() {
   const pathname = usePathname();
-
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around
-      bg-[#0a0e18]/90 backdrop-blur-xl border-t border-[#1a2235]
-      px-2 pb-[env(safe-area-inset-bottom)]">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around bg-[#080c14]/95 backdrop-blur-xl border-t border-white/[0.06] safe-pb">
       {MOBILE_NAV.map(({ href, label, icon: Icon }) => {
-        const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href);
+        const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
         return (
           <Link key={href} href={href}
-            className={cn(
-              'flex flex-col items-center gap-1 px-3 py-3 rounded-xl min-w-[56px] text-center transition-colors',
-              isActive ? 'text-emerald-400' : 'text-slate-500',
-            )}>
+            className={`flex flex-col items-center gap-1 px-4 py-3 transition-colors ${active ? 'text-emerald-400' : 'text-slate-600'}`}>
             <Icon size={20} />
-            <span className="text-[10px] font-medium">{label}</span>
+            <span className="text-[10px] font-semibold">{label}</span>
           </Link>
         );
       })}

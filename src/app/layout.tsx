@@ -1,43 +1,26 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { Sidebar, MobileNav } from '@/components/layout/Sidebar';
+import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
 import { SplashScreen } from '@/ui/SplashScreen';
 
 export const metadata: Metadata = {
   title: 'GoalForge — Copa do Mundo 2026',
   description: 'Plataforma premium de inteligência esportiva para a Copa do Mundo 2026.',
-  authors: [{ name: 'lypecs' }],
-  keywords: ['copa do mundo 2026', 'fifa', 'futebol', 'simulador', 'probabilidades', 'odds', 'value bets'],
-  openGraph: {
-    title: 'GoalForge — Copa do Mundo 2026',
-    description: 'Calendário, grupos, mata-mata, simulador, probabilidades, odds e value bets.',
-    type: 'website',
-  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR">
-      <body>
+      <body className="flex min-h-screen bg-[#07090f] text-slate-100 antialiased">
         <SplashScreen />
-
-        {/* Sidebar — desktop only */}
         <Sidebar />
-
-        {/* Main content area — offset by sidebar width on desktop */}
-        <div className="lg:ml-56 min-h-screen flex flex-col overflow-x-hidden">
-          {/* Topbar */}
+        <div className="flex flex-col flex-1 min-w-0">
           <Topbar />
-
-          {/* Page content — below topbar */}
-          <main className="pt-14 pb-20 lg:pb-0 flex-1">
+          <main className="flex-1 overflow-x-hidden pb-20 lg:pb-0">
             {children}
           </main>
         </div>
-
-        {/* Mobile bottom nav */}
-        <MobileNav />
       </body>
     </html>
   );

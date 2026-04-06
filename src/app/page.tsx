@@ -142,95 +142,110 @@ export default async function DashboardPage() {
   const allMatches = [...liveMatches, ...upcomingMatches.slice(0, 4), ...recentMatches.slice(0, 2)] as DbMatch[];
 
   return (
-    <div className="p-5 lg:p-7 space-y-7 max-w-[1280px] mx-auto">
+    <div className="max-w-7xl mx-auto px-5 lg:px-7 py-6 space-y-6">
 
-      {/* ── Hero ───────────────────────────────── */}
-      <div className="relative rounded-2xl overflow-hidden border border-emerald-500/20 border-l-2 border-l-emerald-500 bg-gradient-to-r from-emerald-500/15 via-[#0d1117] to-blue-500/10"
-        style={{ boxShadow: '0 0 40px rgba(16,185,129,0.08), inset 0 1px 0 rgba(16,185,129,0.10)' }}>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_30%_50%,rgba(16,185,129,0.09),transparent)]" />
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.07),transparent)]" />
-        <div className="relative px-6 py-8 md:px-8 md:py-10 flex flex-col md:flex-row md:items-center gap-6">
-          <div className="flex-1">
+      {/* Hero */}
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#07090f] border border-white/[0.06]"
+        style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)' }}>
+        {/* Glow accents */}
+        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-emerald-500/[0.06] blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-10 -right-10 w-64 h-64 rounded-full bg-blue-500/[0.06] blur-3xl pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-emerald-500/0 via-emerald-500/60 to-emerald-500/0" />
+
+        <div className="relative px-6 py-8 lg:px-8 flex flex-col lg:flex-row lg:items-center gap-6">
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-3">
-              <Badge variant="value"><Zap size={10} /> Fase de Grupos</Badge>
-              {live > 0 && <Badge variant="live"><Radio size={10} /> {live} ao vivo</Badge>}
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-bold text-emerald-400">
+                <Zap size={9} /> Fase de Grupos
+              </span>
+              {live > 0 && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-[11px] font-bold text-red-400">
+                  <Radio size={9} className="animate-pulse" /> {live} ao vivo
+                </span>
+              )}
             </div>
-            <h1 className="text-3xl font-black text-white leading-tight mb-2">
-              🏆 Copa do Mundo 2026
+            <h1 className="text-3xl lg:text-4xl font-black text-white leading-tight tracking-tight mb-2">
+              Copa do Mundo<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">2026</span>
             </h1>
-            <p className="text-slate-400 text-sm max-w-md">
+            <p className="text-slate-500 text-sm max-w-sm">
               Probabilidades, odds e value bets em tempo real para todos os jogos da competição.
             </p>
           </div>
+
           <div className="grid grid-cols-3 gap-3 shrink-0">
             {[
-              { label: 'Total',    value: total,   icon: CalendarDays, color: 'text-blue-400',  bg: 'bg-blue-500/10 border-blue-500/20'  },
-              { label: 'Jogados',  value: played,  icon: Trophy,       color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
-              { label: 'Ao vivo',  value: live,    icon: Radio,        color: 'text-red-400',   bg: 'bg-red-500/10 border-red-500/20'    },
+              { label: 'Total',   value: total,  color: 'text-blue-400',   bg: 'bg-blue-500/8   border-blue-500/15'  },
+              { label: 'Jogados', value: played, color: 'text-amber-400',  bg: 'bg-amber-500/8  border-amber-500/15' },
+              { label: 'Ao vivo', value: live,   color: 'text-red-400',    bg: 'bg-red-500/8    border-red-500/15'   },
             ].map(s => (
-              <div key={s.label} className={`${s.bg} border rounded-xl p-3 text-center min-w-[72px]`}>
-                <s.icon size={18} className={`mx-auto mb-1 ${s.color}`} />
-                <div className="text-xl font-black text-white">{s.value}</div>
-                <div className="text-[10px] text-slate-500 uppercase tracking-wider">{s.label}</div>
+              <div key={s.label} className={`${s.bg} border rounded-xl p-4 text-center min-w-[72px]`}>
+                <div className={`text-2xl font-black ${s.color}`}>{s.value}</div>
+                <div className="text-[10px] text-slate-600 uppercase tracking-wider mt-0.5">{s.label}</div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ── Live matches ────────────────────────── */}
+      {/* Live matches */}
       {liveMatches.length > 0 && (
         <section>
-          <SectionHeader title="Ao Vivo Agora" icon={<Radio size={15} className="text-red-400" />} badge={<Badge variant="live">● {liveMatches.length}</Badge>} />
+          <div className="flex items-center gap-2 mb-3">
+            <Radio size={14} className="text-red-400 animate-pulse" />
+            <h2 className="text-sm font-bold text-white">Ao Vivo Agora</h2>
+            <span className="px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-400 ml-1">● {liveMatches.length}</span>
+          </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {(liveMatches as DbMatch[]).map(m => <MatchRow key={m.id} m={m} />)}
           </div>
         </section>
       )}
 
-      {/* ── Main grid ───────────────────────────── */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Upcoming */}
+      {/* Main grid */}
+      <div className="grid gap-5 lg:grid-cols-3">
+        {/* Upcoming matches */}
         <div className="lg:col-span-2 space-y-3">
-          <SectionHeader
-            title={played > 0 ? 'Próximos Jogos' : 'Todos os Jogos'}
-            icon={<CalendarDays size={15} className="text-blue-400" />}
-            action={<Link href="/jogos" className="text-xs text-slate-500 hover:text-emerald-400 flex items-center gap-1 transition-colors">Ver todos <ArrowRight size={12} /></Link>}
-          />
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="flex items-center gap-2 mb-3">
+            <CalendarDays size={14} className="text-blue-400" />
+            <h2 className="text-sm font-bold text-white">Próximos Jogos</h2>
+            <Link href="/jogos" className="ml-auto text-[11px] text-slate-600 hover:text-emerald-400 transition-colors flex items-center gap-1">
+              Ver todos <ArrowRight size={11} />
+            </Link>
+          </div>
+          <div className="grid gap-2.5 sm:grid-cols-2">
             {(upcomingMatches.slice(0, 4) as DbMatch[]).map(m => <MatchRow key={m.id} m={m} />)}
           </div>
         </div>
 
-        {/* Right col: value bets or projections */}
-        <div className="space-y-4">
+        {/* Right col */}
+        <div className="space-y-3">
           {topInsights.length > 0 ? (
             <>
-              <SectionHeader
-                title="Top Value Bets"
-                icon={<Gem size={15} className="text-emerald-400" />}
-                action={<Link href="/value-bets" className="text-xs text-slate-500 hover:text-emerald-400 flex items-center gap-1 transition-colors">Ver todos <ArrowRight size={12} /></Link>}
-              />
+              <div className="flex items-center gap-2 mb-3">
+                <Gem size={14} className="text-emerald-400" />
+                <h2 className="text-sm font-bold text-white">Top Value Bets</h2>
+                <Link href="/value-bets" className="ml-auto text-[11px] text-slate-600 hover:text-emerald-400 transition-colors flex items-center gap-1">
+                  Ver <ArrowRight size={11} />
+                </Link>
+              </div>
               <div className="space-y-2">
                 {topInsights.map(i => {
                   const hUrl = flagUrl(i.match.homeTeam.code, 40);
                   const aUrl = flagUrl(i.match.awayTeam.code, 40);
                   return (
                     <Link key={i.id} href="/value-bets"
-                      className="block bg-[#0d1117] border border-[#1e2d3d] rounded-xl p-4 hover:border-emerald-500/25 transition-all">
-                      <div className="flex items-center gap-2 mb-2">
-                        {hUrl && <img src={hUrl} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2 }} />}
-                        <span className="text-xs text-slate-300 font-semibold">{i.match.homeTeam.code}</span>
-                        <span className="text-slate-600 text-xs">vs</span>
-                        <span className="text-xs text-slate-300 font-semibold">{i.match.awayTeam.code}</span>
-                        {aUrl && <img src={aUrl} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2 }} />}
+                      className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.025] border border-white/[0.05] hover:border-emerald-500/20 hover:bg-emerald-500/[0.03] transition-all group">
+                      <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                        {hUrl && <img src={hUrl} alt="" style={{ width: 18, height: 12, objectFit: 'cover', borderRadius: 2 }} />}
+                        <span className="text-[11px] text-slate-400 font-medium truncate">{i.match.homeTeam.code} vs {i.match.awayTeam.code}</span>
+                        {aUrl && <img src={aUrl} alt="" style={{ width: 18, height: 12, objectFit: 'cover', borderRadius: 2 }} />}
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] text-slate-500">{i.market.name} · {i.bookmaker.name}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-black text-white">{i.offeredOdd.toFixed(2)}</span>
-                          <Badge variant="strong-value">EV +{(i.expectedValue * 100).toFixed(1)}%</Badge>
-                        </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-sm font-black text-white">{i.offeredOdd.toFixed(2)}</span>
+                        <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/20 text-[10px] font-black text-emerald-400">
+                          +{(i.expectedValue * 100).toFixed(1)}%
+                        </span>
                       </div>
                     </Link>
                   );
@@ -238,43 +253,45 @@ export default async function DashboardPage() {
               </div>
             </>
           ) : (
-            <div className="bg-[#0d1117] border border-dashed border-[#1e2d3d] rounded-xl p-5 text-center">
-              <Gem size={28} className="mx-auto mb-2 text-emerald-500/30" />
-              <p className="text-xs text-slate-600 mb-3">Value bets aparecerão aqui após o sync analítico</p>
-              <Link href="/value-bets" className="text-xs text-emerald-500 hover:text-emerald-400 flex items-center justify-center gap-1">
-                Ver página de Value Bets <ArrowRight size={11} />
+            <div className="rounded-xl border border-dashed border-white/[0.07] bg-white/[0.015] p-5 text-center">
+              <Gem size={24} className="mx-auto mb-2 text-emerald-500/30" />
+              <p className="text-xs text-slate-600 mb-3">Value bets após sync analítico</p>
+              <Link href="/value-bets" className="text-xs text-emerald-500/70 hover:text-emerald-400 transition-colors flex items-center justify-center gap-1">
+                Ver página <ArrowRight size={11} />
               </Link>
             </div>
           )}
         </div>
       </div>
 
-      {/* ── Tournament projections ───────────────── */}
+      {/* Tournament projections */}
       {projections.length > 0 && (
         <section>
-          <SectionHeader
-            title="Projeções de Título"
-            icon={<Trophy size={15} className="text-amber-400" />}
-            badge={<Badge variant="amber">Monte Carlo</Badge>}
-            action={<Link href="/probabilidades" className="text-xs text-slate-500 hover:text-emerald-400 flex items-center gap-1 transition-colors">Ver detalhes <ArrowRight size={12} /></Link>}
-          />
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Trophy size={14} className="text-amber-400" />
+            <h2 className="text-sm font-bold text-white">Projeções de Título</h2>
+            <span className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/15 text-[10px] font-bold text-amber-500 ml-1">Monte Carlo</span>
+            <Link href="/probabilidades" className="ml-auto text-[11px] text-slate-600 hover:text-emerald-400 transition-colors flex items-center gap-1">
+              Ver detalhes <ArrowRight size={11} />
+            </Link>
+          </div>
+          <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
             {projections.map(p => {
               const url = flagUrl(p.team.code, 40);
+              const pct = (p.winTournamentProbability * 100);
               return (
-                <div key={p.id} className="bg-[#0d1117] border border-[#1e2d3d] rounded-xl p-4">
+                <div key={p.id} className="bg-white/[0.025] border border-white/[0.05] rounded-xl p-4 hover:border-amber-500/15 transition-all">
                   <div className="flex items-center gap-2.5 mb-3">
-                    {url && <img src={url} alt={p.team.code} style={{ width: 28, height: 19, objectFit: 'cover', borderRadius: 3, border: '1px solid rgba(255,255,255,0.1)' }} />}
+                    {url && <img src={url} alt={p.team.code} style={{ width: 28, height: 19, objectFit: 'cover', borderRadius: 3, border: '1px solid rgba(255,255,255,0.08)' }} />}
                     <div>
                       <div className="text-sm font-bold text-white">{p.team.shortName}</div>
-                      <div className="text-[10px] text-slate-500">Grupo {p.team.groupId?.split('_')[1]?.toUpperCase()}</div>
                     </div>
+                    <div className="ml-auto text-sm font-black text-amber-400">{pct.toFixed(1)}%</div>
                   </div>
-                  <ProgressBar value={p.winTournamentProbability * 100} color="amber" size="sm" />
-                  <div className="flex justify-between mt-1.5 text-[10px]">
-                    <span className="text-slate-600">Chance de título</span>
-                    <span className="font-bold text-amber-400">{(p.winTournamentProbability * 100).toFixed(1)}%</span>
+                  <div className="h-1 rounded-full bg-white/[0.04] overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-400" style={{ width: `${Math.min(pct * 6.25, 100)}%` }} />
                   </div>
+                  <div className="text-[9px] text-slate-700 mt-1.5">Chance de título</div>
                 </div>
               );
             })}
@@ -282,24 +299,22 @@ export default async function DashboardPage() {
         </section>
       )}
 
-      {/* ── Quick access ─────────────────────────── */}
-      <section>
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {[
-            { href: '/probabilidades', label: 'Probabilidades', desc: 'Modelo Poisson', icon: BarChart3,  color: 'from-blue-500/10 to-blue-500/5 border-blue-500/20 text-blue-400'     },
-            { href: '/odds',           label: 'Odds',           desc: '3 casas',        icon: Activity,   color: 'from-purple-500/10 to-purple-500/5 border-purple-500/20 text-purple-400' },
-            { href: '/value-bets',     label: 'Value Bets',     desc: 'Oportunidades',  icon: Gem,        color: 'from-emerald-500/10 to-emerald-500/5 border-emerald-500/20 text-emerald-400' },
-            { href: '/simulador',      label: 'Simulador',      desc: 'Projetar cenários', icon: Zap,     color: 'from-amber-500/10 to-amber-500/5 border-amber-500/20 text-amber-400'  },
-          ].map(item => (
-            <Link key={item.href} href={item.href}
-              className={`bg-gradient-to-br ${item.color} border rounded-xl p-4 hover:scale-[1.02] transition-transform`}>
-              <item.icon size={22} className="mb-2" />
-              <div className="text-sm font-bold text-white">{item.label}</div>
-              <div className="text-[11px] text-slate-500 mt-0.5">{item.desc}</div>
-            </Link>
-          ))}
-        </div>
-      </section>
+      {/* Quick access */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          { href: '/probabilidades', label: 'Probabilidades', desc: 'Modelo Poisson', icon: BarChart3,  from: 'from-blue-500/10',    border: 'border-blue-500/15',    text: 'text-blue-400'    },
+          { href: '/odds',           label: 'Odds',           desc: '3 casas',        icon: Activity,   from: 'from-purple-500/10',  border: 'border-purple-500/15',  text: 'text-purple-400'  },
+          { href: '/value-bets',     label: 'Value Bets',     desc: 'Oportunidades',  icon: Gem,        from: 'from-emerald-500/10', border: 'border-emerald-500/15', text: 'text-emerald-400' },
+          { href: '/simulador',      label: 'Simulador',      desc: 'Projete cenários', icon: Zap,      from: 'from-amber-500/10',   border: 'border-amber-500/15',   text: 'text-amber-400'   },
+        ].map(item => (
+          <Link key={item.href} href={item.href}
+            className={`bg-gradient-to-br ${item.from} to-transparent ${item.border} border rounded-xl p-4 hover:scale-[1.02] active:scale-[0.98] transition-all`}>
+            <item.icon size={20} className={`${item.text} mb-2.5`} />
+            <div className="text-sm font-bold text-white">{item.label}</div>
+            <div className="text-[11px] text-slate-600 mt-0.5">{item.desc}</div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

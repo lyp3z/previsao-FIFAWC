@@ -146,7 +146,7 @@ export function JogosClient({ matches }: Props) {
   const live = matches.filter(m => m.status === 'LIVE').length;
 
   return (
-    <div className="p-5 lg:p-7 max-w-[1280px] mx-auto space-y-5">
+    <div className="max-w-7xl mx-auto px-5 lg:px-7 py-6 space-y-5">
 
       {/* Header */}
       <div className="flex items-center gap-3">
